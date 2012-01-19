@@ -9,11 +9,10 @@ module RefererTracking
       model.class_eval do
         include RefererTracking::TrackableModule
       end
+    end
 
-      RefererTracking::Sweeper.class_eval do
-        observe model
-      end
-      
+    RefererTracking::Sweeper.class_eval do
+      observe models_list
     end
   end
 
