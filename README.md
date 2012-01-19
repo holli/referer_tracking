@@ -5,6 +5,8 @@ Referer tracking is saves referrer url to session and automates better tracking 
 Http referer_url and first_url are saved to session in controller before_filter. When creating a new model these values are
 saved to referer_trackings table.
 
+[<img src="https://secure.travis-ci.org/holli/referer_tracking.png" />](http://travis-ci.org/holli/referer_tracking)
+
 # Install / Usage
 
 ## Install
@@ -54,6 +56,16 @@ UserController
 end
 
 ```
+
+# Requirements
+
+Gem has been tested with ruby 1.8.7, 1.9.2 and Rails 3.1.
+
+[<img src="https://secure.travis-ci.org/holli/referer_tracking.png" />](http://travis-ci.org/holli/referer_tracking)
+
+# Support
+
+Submit suggestions or feature requests as a GitHub Issue or Pull Request. Remember to update tests. Tests are quite extensive.
 
 
 # Licence
