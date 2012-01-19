@@ -1,8 +1,10 @@
 class RefererTracking::Sweeper < ActionController::Caching::Sweeper
   def after_create(record)
-    ses = session["referer_tracking"]
 
-    unless ses
+    if session && session["referer_tracking"]
+      ses = session["referer_tracking"]
+
+
       ref_mod = RefererTracking::RefererTracking.new(
           :trackable_id => record.id, :trackable_type => record.class.to_s)
 
