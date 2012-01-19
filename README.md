@@ -17,7 +17,7 @@ in /gemfile
 
 # Run following
 # bundle
-# bundle exec rake railties:install:migrations FROM=RefererTracking
+# bundle exec rake railties:install:migrations FROM=referer_tracking
 # rake db:migrate
 
 ```
@@ -31,7 +31,7 @@ ApplicationController
 end
 
 OtherController
-  # This monitors saved items, enable in controllers you want it to be used
+  # This monitors saved items and creates RefererTracking items in db, enable in controllers you want it to be used
   cache_sweeper RefererTracking::Sweeper
 end
 
@@ -47,15 +47,22 @@ You can add own info to referer_tracking table by creating a column in the table
 value to referer_tracking.
 
 ```
-
 UserController
   # Example of adding info to referer_tracking, remember to create migration to add column first
   before_filter do |controller|
-    referer_tracking_add_info('referer_id', session[:referer_id]) if referer_tracking_first_request?
+    referer_tracking_add_info('referer_id', session[:referer_id])
   end
 end
 
 ```
+
+**Helpers include**
+
+- referer_tracking_add_info(key, value) # only set in the first time called
+- referer_tracking_set_info(key, value) # change value always
+- referer_tracking_first_request?
+- referer_tracking_get_key(key)
+
 
 # Requirements
 

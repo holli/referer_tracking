@@ -16,9 +16,24 @@ module RefererTracking::ControllerAddons
     end
   end
 
+  # Add only if referer_tracking already in session and key has not been changed before
   def referer_tracking_add_info(key, value)
+    if !session[:referer_tracking].nil? && session[:referer_tracking][key.to_sym].nil?
+      session[:referer_tracking][key.to_sym] = value
+    end
+  end
+
+  def referer_tracking_set_info(key, value)
     if !session[:referer_tracking].nil?
       session[:referer_tracking][key.to_sym] = value
+    end
+  end
+
+  def referer_tracking_get_info(key)
+    unless session[:referer_tracking].nil?
+      session[:referer_tracking][key.to_sym]
+    else
+      nil
     end
   end
 
@@ -44,6 +59,8 @@ module RefererTracking::ControllerAddons
       before_filter :before_filter_referer_tracking_save_to_session
       helper_method :'referer_tracking_first_request?'
       helper_method :'referer_tracking_add_info'
+      helper_method :'referer_tracking_set_info'
+      helper_method :'referer_tracking_get_info'
     end
   end
 

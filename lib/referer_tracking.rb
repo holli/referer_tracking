@@ -4,8 +4,8 @@ require "referer_tracking/sweeper"
 
 module RefererTracking
 
-  def self.add_tracking_to(models_array)
-    [*models_array].each do |model|
+  def self.add_tracking_to(*models_list)
+    models_list.each do |model|
       model.class_eval do
         include RefererTracking::TrackableModule
       end

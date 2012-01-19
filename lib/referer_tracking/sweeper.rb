@@ -1,22 +1,21 @@
 class RefererTracking::Sweeper < ActionController::Caching::Sweeper
-  #observe ::Dummy::User
+  def after_create(record)
+    ses = session["referer_tracking"]
 
-  #def self.observe_add
-  #
-  #end
+    unless ses
+      ref_mod = RefererTracking::RefererTracking.new(
+          :trackable_id => record.id, :trackable_type => record.class.to_s)
 
-  def after_save(record)
-    ses = session["referer_tracking"] || {}
+      ses.each_pair do |key, value|
+        ref_mod[key] = value if ref_mod.has_attribute?(key)
+      end
 
-    ref_mod = RefererTracking::RefererTracking.new(
-        :trackable_id => record.id, :trackable_type => record.class.to_s)
-
-    ses.each_pair do |key, value|
-      ref_mod[key] = value if ref_mod.has_attribute?(key)
+      ref_mod[:user_agent] = request.env['HTTP_USER_AGENT']
+      ref_mod.save
     end
 
-    ref_mod[:user_agent] = request.env['HTTP_USER_AGENT']
-    ref_mod.save
+  rescue Exception => e
+    Rails.logger.info "RefererTracking::Sweeper.after_create problem with creating record: #{e}"
   end
 end
 

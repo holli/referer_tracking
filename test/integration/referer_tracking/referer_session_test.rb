@@ -33,7 +33,11 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
   test "should be able to save models and safe referer_tracking at the same" do
     get 'users', {}, {"HTTP_REFERER" => (@referer = "www.some-source-forward.com")}
 
+    @original_count = RefererTracking::RefererTracking.count
+
     post 'users', {:user => {:name => 'test name'}}, {"HTTP_USER_AGENT" => (@user_agent = "som user agent")}
+
+    assert_equal @original_count + 1, RefererTracking::RefererTracking.count, "did not create referer tracking"
 
     ref_session = session["referer_tracking"]
     ref_track = RefererTracking::RefererTracking.order(:created_at).last
@@ -48,7 +52,24 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     assert_equal user.id, ref_track.trackable.id, "models didn't match from ref_track.trackable"
     
     assert_equal user.referer_tracking.id, ref_track.id, "models didn't match from user.referer_tracking"
+
+    put "users/#{user.id}", {:user => {:name => 'test name'}}, {"HTTP_USER_AGENT" => (@user_agent = "som user agent")}
+    assert_equal @original_count + 1, RefererTracking::RefererTracking.count, "should not create RefererTracking on normal save"
+    
   end
+
+
+  test "error in sweeper should not result error in response" do
+    get 'users', {}, {"HTTP_REFERER" => (@referer = "www.some-source-forward.com")}
+
+    RefererTracking::RefererTracking.any_instance.stubs(:save).raises(Exception)
+
+    post 'users', {:user => {:name => 'test name'}}, {"HTTP_USER_AGENT" => (@user_agent = "som user agent")}
+
+    assert_response :redirect
+  end
+
+
 
 end
 
