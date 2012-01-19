@@ -16,10 +16,9 @@ module RefererTracking::ControllerAddons
     end
   end
 
-
   def referer_tracking_add_info(key, value)
     if !session[:referer_tracking].nil?
-      session[:referer_tracking][:key] = value
+      session[:referer_tracking][key.to_sym] = value
     end
   end
 

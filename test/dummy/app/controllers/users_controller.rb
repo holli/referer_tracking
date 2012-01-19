@@ -15,6 +15,7 @@ class UsersController < ApplicationController
   # GET /users/1
   # GET /users/1.json
   def show
+    referer_tracking_add_info("show_action", "CUSTOM_VAL")
     @user = User.find(params[:id])
 
     respond_to do |format|

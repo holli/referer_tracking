@@ -25,6 +25,9 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     ref = session["referer_tracking"]
     assert_equal @referer, ref[:referer_url], "should not touch referer_url"
     assert_equal "http://#{host}/users", ref[:first_url], "should not touch first_url"
+
+    assert_equal "CUSTOM_VAL", ref[:show_action], "should have added custom value that was set in show action source file"
+
   end
 
   test "should be able to save models and safe referer_tracking at the same" do

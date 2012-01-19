@@ -49,7 +49,7 @@ value to referer_tracking.
 UserController
   # Example of adding info to referer_tracking, remember to create migration to add column first
   before_filter do |controller|
-    
+    referer_tracking_add_info('referer_id', session[:referer_id]) if referer_tracking_first_request?
   end
 end
 
