@@ -7,11 +7,11 @@ require "referer_tracking/version"
 Gem::Specification.new do |s|
   s.name        = "referer_tracking"
   s.version     = RefererTracking::VERSION
-  s.authors     = ["TODO: Your name"]
-  s.email       = ["TODO: Your email"]
-  s.homepage    = "TODO"
-  s.summary     = "TODO: Summary of RefererTracking."
-  s.description = "TODO: Description of RefererTracking."
+  s.authors     = ["Olli Huotari"]
+  s.email       = ["olli.huotari@iki.fi"]
+  s.homepage    = "https://github.com/holli/referer_tracking/"
+  s.summary     = "Referer tracking is saves referrer url to session and automates better tracking of who creates models in your Rails app. Http referer_url and first_url are saved to session in controller before_filter. When creating a new model these values are saved to referer_trackings table."
+  s.description = "Referer tracking is saves referrer url to session and automates better tracking of who creates models in your Rails app. Http referer_url and first_url are saved to session in controller before_filter. When creating a new model these values are saved to referer_trackings table."
 
   s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["test/**/*"]
