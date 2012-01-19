@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.summary     = "Referer tracking is saves referrer url to session and automates better tracking of who creates models in your Rails app. Http referer_url and first_url are saved to session in controller before_filter. When creating a new model these values are saved to referer_trackings table."
   s.description = "Referer tracking is saves referrer url to session and automates better tracking of who creates models in your Rails app. Http referer_url and first_url are saved to session in controller before_filter. When creating a new model these values are saved to referer_trackings table."
 
-  s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
+  s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.md"]
   s.test_files = Dir["test/**/*"]
 
   s.add_dependency "rails", "~> 3.1"
