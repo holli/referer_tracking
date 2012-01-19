@@ -7,8 +7,6 @@ saved to referer_trackings table.
 
 [<img src="https://secure.travis-ci.org/holli/referer_tracking.png" />](http://travis-ci.org/holli/referer_tracking)
 
-# Install / Usage
-
 ## Install
 
 ```
@@ -63,19 +61,24 @@ end
 - referer_tracking_first_request?
 - referer_tracking_get_key(key)
 
+## Inside
 
-# Requirements
+RefererTracking::ControllerAddons creates before_filter that saves referer_information to session. Direct access
+is not recommended but possible with session[:referer_tracking]. Information is not saved for known bots.
+
+## Requirements
 
 Gem has been tested with ruby 1.8.7, 1.9.2 and Rails 3.1.
 
 [<img src="https://secure.travis-ci.org/holli/referer_tracking.png" />](http://travis-ci.org/holli/referer_tracking)
 
-# Support
+
+## Support
 
 Submit suggestions or feature requests as a GitHub Issue or Pull Request. Remember to update tests. Tests are quite extensive.
 
 
-# Licence
+## Licence
 
 This project rocks and uses MIT-LICENSE. (http://www.opensource.org/licenses/mit-license.php)
 

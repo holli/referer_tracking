@@ -3,7 +3,7 @@ module RefererTracking::ControllerAddons
   #before_filter :before_filter_referer_tracking_save_to_session
 
   def before_filter_referer_tracking_save_to_session
-    if session[:referer_tracking].nil? && !request_is_from_a_known_bot
+    if session[:referer_tracking].nil? && !request_is_from_a_known_bot?
       @referer_tracking_first_request = true
       session[:referer_tracking] = hash = Hash.new
       request_ref = "unknown"
@@ -37,19 +37,17 @@ module RefererTracking::ControllerAddons
     end
   end
 
-  #####################################################
-  ## HELPERS
-
   def referer_tracking_first_request?
     @referer_tracking_first_request
   end
 
 
-  def request_is_from_a_known_bot
+  def request_is_from_a_known_bot?
     bot_user_agents = /\b(GoogleBot|Mediapartners-Google|msnbot|TwengaBot|DigExt; DTS Agent|YandexImages)\b/i
     request.user_agent =~ bot_user_agents
   end
-  def request_is_from_a_possible_bot
+
+  def request_is_from_a_possible_bot?
     request.user_agent =~ /bot/i
   end
 
