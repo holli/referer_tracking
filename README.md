@@ -36,6 +36,7 @@ end
 /config/initializers/referer_tracking.rb
   # Referer tracking is enabled for these models
   RefererTracking.add_tracking_to(User)
+  # RefererTracking.add_tracking_to(User, Messages) # for multiple models
 
 ```
 
