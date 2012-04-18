@@ -10,9 +10,9 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120119124101) do
+ActiveRecord::Schema.define(:version => 20120418183653) do
 
-  create_table "referer_tracking_referer_trackings", :force => true do |t|
+  create_table "referer_trackings", :force => true do |t|
     t.integer  "trackable_id"
     t.string   "trackable_type"
     t.text     "referer_url"
@@ -20,6 +20,8 @@ ActiveRecord::Schema.define(:version => 20120119124101) do
     t.string   "user_agent"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "request_added"
+    t.string   "session_added"
   end
 
   create_table "users", :force => true do |t|

@@ -16,10 +16,14 @@ module RefererTracking::ControllerAddons
     end
   end
 
-  # Add only if referer_tracking already in session and key has not been changed before
+  ###############################################
+  # Session add methods
+
+  # Add only if referer_tracking already in session and key has not been added/changed before
+  # So this is only performed on the first time of the session
   def referer_tracking_add_info(key, value)
     if !session[:referer_tracking].nil? && session[:referer_tracking][key.to_sym].nil?
-      session[:referer_tracking][key.to_sym] = value
+      referer_tracking_set_info(key, value)
     end
   end
 
@@ -30,12 +34,22 @@ module RefererTracking::ControllerAddons
   end
 
   def referer_tracking_get_info(key)
-    unless session[:referer_tracking].nil?
-      session[:referer_tracking][key.to_sym]
-    else
-      nil
-    end
+    session[:referer_tracking].nil? ? nil : session[:referer_tracking][key.to_sym]
   end
+
+  ###############################################
+  # Request add methods
+
+  def referer_tracking_request_add_infos
+    @referer_tracking_request_add_infos ||= {}
+  end
+  private :referer_tracking_request_add_infos
+
+  def referer_tracking_request_set_info(key, value)
+    referer_tracking_request_add_infos[key.to_sym] = value
+  end
+
+  ###############################################
 
   def referer_tracking_first_request?
     @referer_tracking_first_request

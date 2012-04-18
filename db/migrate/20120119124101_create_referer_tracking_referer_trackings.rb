@@ -1,6 +1,6 @@
 class CreateRefererTrackingRefererTrackings < ActiveRecord::Migration
   def change
-    create_table :referer_tracking_referer_trackings do |t|
+    create_table :referer_trackings do |t|
       t.integer :trackable_id
       t.string :trackable_type
       t.text :referer_url

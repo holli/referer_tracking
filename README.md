@@ -49,18 +49,25 @@ value to referer_tracking.
 UserController
   # Example of adding info to referer_tracking, remember to create migration to add column first
   before_filter do |controller|
+    # adds to session, so saved to later requests
     referer_tracking_add_info('referer_id', session[:referer_id])
+
+    # adds only to this requests, ignored later
+    referer_tracking_request_set_info('referer_id', session[:referer_id])
   end
+
 end
 
 ```
 
 **Helpers include**
 
+- referer_tracking_first_request?
 - referer_tracking_add_info(key, value) # only set in the first time called
 - referer_tracking_set_info(key, value) # change value always
-- referer_tracking_first_request?
 - referer_tracking_get_key(key)
+- referer_tracking_request_set_info
+- referer_tracking_request_add_infos # hash of current request infos
 
 ## Inside
 

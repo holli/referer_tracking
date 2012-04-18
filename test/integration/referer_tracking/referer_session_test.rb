@@ -46,6 +46,8 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     assert_equal @referer, ref_track.referer_url
     assert_equal ref_session[:first_url], ref_track.first_url
     assert_equal @user_agent, ref_track.user_agent
+    assert_equal 'testing_request_add', ref_track.request_added
+    assert_equal 'testing_session_add', ref_track.session_added
 
     user = User.where(:name => 'test name').first
 
