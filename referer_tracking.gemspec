@@ -10,8 +10,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Olli Huotari"]
   s.email       = ["olli.huotari@iki.fi"]
   s.homepage    = "https://github.com/holli/referer_tracking/"
-  s.summary     = "Referer tracking is saves referrer url to session and automates better tracking of who creates models in your Rails app. Http referer_url and first_url are saved to session in controller before_filter. When creating a new model these values are saved to referer_trackings table."
-  s.description = "Referer tracking is saves referrer url to session and automates better tracking of who creates models in your Rails app. Http referer_url and first_url are saved to session in controller before_filter. When creating a new model these values are saved to referer_trackings table."
+  s.summary     = "Referer tracking automates better tracking in your Rails app. It tells you who creates activerecord objects / models, where did they originally come from, what url did they use etc. It does it by saving referrer url to session and saving information about the request when creating new item. It enables you to optimize your web-app user interface and flow."
+  s.description = "Referer tracking automates better tracking in your Rails app. It tells you who creates activerecord objects / models, where did they originally come from, what url did they use etc. It does it by saving referrer url to session and saving information about the request when creating new item. It enables you to optimize your web-app user interface and flow."
 
   s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.md"]
   s.test_files = Dir["test/**/*"]
