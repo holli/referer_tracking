@@ -17,8 +17,22 @@ class RefererTracking::Sweeper < ActionController::Caching::Sweeper
         end
       end
 
-
+      ref_mod[:ip] = request.ip
       ref_mod[:user_agent] = request.env['HTTP_USER_AGENT']
+      ref_mod[:current_request_url] = request.url
+      ref_mod[:current_request_referer_url] = request.env["HTTP_REFERER"] # or request.headers["HTTP_REFERER"]
+      ref_mod[:session_id] = request.session["session_id"]
+
+      if RefererTracking.save_cookies
+        begin
+          ref_mod[:cookies_yaml] = cookies.instance_variable_get('@cookies').to_yaml
+        rescue
+          str = "referer_tracking after create problem encoding cookie yml, probably non utf8 chars #{e}"
+          logger.error(str)
+          ref_mod[:cookies_yaml] = "error: #{str}"
+        end
+      end
+
       ref_mod.save
     end
 

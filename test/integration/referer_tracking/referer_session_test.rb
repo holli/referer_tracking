@@ -4,6 +4,10 @@ require File.dirname(__FILE__) + '/../../test_helper'
 class RefererSessionTest < ActionDispatch::IntegrationTest
   fixtures :all
 
+  teardown do
+    RefererTracking.save_cookies = false
+  end
+
   test "should save referer to session" do
     get 'users', {}, {"HTTP_REFERER" => (@referer = "www.some-source-forward.com")}
     assert_response :success
@@ -31,11 +35,15 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
   end
 
   test "should be able to save models and safe referer_tracking at the same" do
+    RefererTracking.save_cookies = true
+
     get 'users', {}, {"HTTP_REFERER" => (@referer = "www.some-source-forward.com")}
 
     @original_count = RefererTracking::RefererTracking.count
 
-    post 'users', {:user => {:name => 'test name'}}, {"HTTP_USER_AGENT" => (@user_agent = "som user agent")}
+    post 'users', {:user => {:name => 'test name'}},
+         {"HTTP_USER_AGENT" => (@user_agent = "som user agent"),
+          "HTTP_REFERER" => (@current_request_referer = "localhost.inv/request_from_this_page")}
 
     assert_equal @original_count + 1, RefererTracking::RefererTracking.count, "did not create referer tracking"
 
@@ -48,6 +56,10 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     assert_equal @user_agent, ref_track.user_agent
     assert_equal 'testing_request_add', ref_track.request_added
     assert_equal 'testing_session_add', ref_track.session_added
+    assert_equal @current_request_referer, ref_track.current_request_referer_url
+    assert_equal "http://www.example.com/users", ref_track.current_request_url
+    assert !ref_track.session_id.blank?
+    assert !YAML::load(ref_track.cookies_yaml)["_dummy_session"].blank?, "should have saved the cookies in yaml"
 
     user = User.where(:name => 'test name').first
 
@@ -57,7 +69,7 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
 
     put "users/#{user.id}", {:user => {:name => 'test name'}}, {"HTTP_USER_AGENT" => (@user_agent = "som user agent")}
     assert_equal @original_count + 1, RefererTracking::RefererTracking.count, "should not create RefererTracking on normal save"
-    
+
   end
 
 

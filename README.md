@@ -1,11 +1,30 @@
 # RefererTracking
 
-Referer tracking is saves referrer url to session and automates better tracking of who creates models in your Rails app.
+Referer tracking is saves referrer url to session and automates better tracking of who creates and where
+activerecord objects / models in your Rails app. It enables you to optimize your web-app user-interface and flow.
 
 Http referer_url and first_url are saved to session in controller before_filter. When creating a new model these values are
-saved to referer_trackings table.
+saved to referer_trackings table. Also current request url and current request referer are saved.
+
+You can query how specific objects were made by querying following. It will let you know how did the user end up in your page and where did he create the object.
+
+```
+  RefererTracking::RefererTracking.where(:trackable_type => 'class_name').collect{|rt| [rt.first_url, rt.referer_url, rt.current_request_referer_url]}
+```
 
 [<img src="https://secure.travis-ci.org/holli/referer_tracking.png" />](http://travis-ci.org/holli/referer_tracking)
+
+## Monitored items
+
+```
+- referer_url - where did the user originally come from
+- first_url - what was the first url for this session
+- current_request_url - when creating the item
+- current_request_referer_url - when creating the item, where did the request originate
+- user_agent, ip, session_id
+- cookies_yaml - saves cookies if enabled in initializers with RefererTracking.save_cookies = true
+               - handy for parsing information related to google analytics, e.g. number of visits
+```
 
 ## Install
 

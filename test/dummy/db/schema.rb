@@ -1,3 +1,4 @@
+# encoding: UTF-8
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -17,7 +18,12 @@ ActiveRecord::Schema.define(:version => 20120418183653) do
     t.string   "trackable_type"
     t.text     "referer_url"
     t.text     "first_url"
+    t.text     "current_request_url"
+    t.text     "current_request_referer_url"
     t.string   "user_agent"
+    t.string   "ip"
+    t.string   "session_id"
+    t.text     "cookies_yaml"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "request_added"
