@@ -19,14 +19,17 @@ You can query how specific objects were made by querying following. It will let 
 ## Monitored items
 
 ```
-- referer_url - where did the user originally come from
-- first_url - what was the first url for this session
+- session_referer_url - where did the user originally come from - saved in session
+- session_first_url - what was the first url for this session - saved in session
+- cookie_referer_url - where did the user originally come from - saved in persistent cookie
+- cookie_first_url - where did the user originally come from - saved in persistent cookie
 - current_request_url - when creating the item
 - current_request_referer_url - when creating the item, where did the request originate
 - user_agent, ip, session_id
 - cookies_yaml - saves cookies if enabled in initializers with RefererTracking.save_cookies = true
                - handy for parsing information related to google analytics, e.g. number of visits
 ```
+
 
 ## Install
 
@@ -59,6 +62,10 @@ end
   RefererTracking.add_tracking_to(User)
   # RefererTracking.add_tracking_to(User, Messages) # for multiple models
 
+  RefererTracking.save_cookies = true # saves all cookies to db
+  RefererTracking.set_referer_cookies = true # saves referer and first url data to cookie
+                   # You should use it unless you are very performance minded : http://yuiblog.com/blog/2007/03/01/performance-research-part-3/
+
 ```
 
 ## Extras
@@ -84,8 +91,8 @@ end
 **Helpers include**
 
 - referer_tracking_first_request?
-- referer_tracking_add_info(key, value) # only set in the first time called
-- referer_tracking_set_info(key, value) # change value always
+- referer_tracking_add_info(key, value) # only set in the first time called - saved in session
+- referer_tracking_set_info(key, value) # change value always - saved in session
 - referer_tracking_get_key(key)
 - referer_tracking_request_set_info
 - referer_tracking_request_add_infos # hash of current request infos
@@ -101,6 +108,9 @@ Gem has been tested with ruby 1.8.7, 1.9.2 and Rails 3.1.
 
 [<img src="https://secure.travis-ci.org/holli/referer_tracking.png" />](http://travis-ci.org/holli/referer_tracking)
 
+## Other possible gems
+
+- https://github.com/n8/devise_marketable
 
 ## Support
 

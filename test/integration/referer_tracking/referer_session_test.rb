@@ -15,8 +15,8 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     ref = session["referer_tracking"]
     assert !ref.blank?, "should have referer_tracking in session"
 
-    assert_equal @referer, ref[:referer_url], "should have saved referer url"
-    assert_equal "http://#{host}/users", ref[:first_url], "should have saved first url"
+    assert_equal @referer, ref[:session_referer_url], "should have saved referer url"
+    assert_equal "http://#{host}/users", ref[:session_first_url], "should have saved first url"
   end
 
   test "should not update session in second requests" do
@@ -27,8 +27,8 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     get "users/#{user.id}", {}, {"HTTP_REFERER" => "second_url"}
 
     ref = session["referer_tracking"]
-    assert_equal @referer, ref[:referer_url], "should not touch referer_url"
-    assert_equal "http://#{host}/users", ref[:first_url], "should not touch first_url"
+    assert_equal @referer, ref[:session_referer_url], "should not touch referer_url"
+    assert_equal "http://#{host}/users", ref[:session_first_url], "should not touch first_url"
 
     assert_equal "CUSTOM_VAL", ref[:show_action], "should have added custom value that was set in show action source file"
 
@@ -51,8 +51,8 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     ref_track = RefererTracking::RefererTracking.order(:created_at).last
 
     assert !ref_track.blank?, "did not create ref tracking"
-    assert_equal @referer, ref_track.referer_url
-    assert_equal ref_session[:first_url], ref_track.first_url
+    assert_equal @referer, ref_track.session_referer_url
+    assert_equal ref_session[:session_first_url], ref_track.session_first_url
     assert_equal @user_agent, ref_track.user_agent
     assert_equal 'testing_request_add', ref_track.request_added
     assert_equal 'testing_session_add', ref_track.session_added

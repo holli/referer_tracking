@@ -11,13 +11,13 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120418183653) do
+ActiveRecord::Schema.define(:version => 20131124175848) do
 
   create_table "referer_trackings", :force => true do |t|
     t.integer  "trackable_id"
     t.string   "trackable_type"
-    t.text     "referer_url"
-    t.text     "first_url"
+    t.text     "session_referer_url"
+    t.text     "session_first_url"
     t.text     "current_request_url"
     t.text     "current_request_referer_url"
     t.string   "user_agent"
@@ -28,6 +28,8 @@ ActiveRecord::Schema.define(:version => 20120418183653) do
     t.datetime "updated_at"
     t.string   "request_added"
     t.string   "session_added"
+    t.text     "cookie_referer_url"
+    t.text     "cookie_first_url"
   end
 
   create_table "users", :force => true do |t|

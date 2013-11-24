@@ -4,8 +4,9 @@ require "referer_tracking/sweeper"
 
 module RefererTracking
 
-  mattr_accessor :save_cookies
-  self.save_cookies = false
+  mattr_accessor :save_cookies, :set_referer_cookies
+  self.save_cookies = true
+  self.set_referer_cookies = true
 
   def self.add_tracking_to(*models_list)
     models_list.each do |model|

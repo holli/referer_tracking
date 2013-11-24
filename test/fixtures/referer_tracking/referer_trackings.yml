@@ -3,11 +3,11 @@
 one:
   commentable_id: 1
   commentable_type: MyString
-  referer_url: MyText
-  first_url: MyText
+  session_referer_url: MyText
+  session_first_url: MyText
 
 two:
   commentable_id: 1
   commentable_type: MyString
-  referer_url: MyText
-  first_url: MyText
+  session_referer_url: MyText
+  session_first_url: MyText
