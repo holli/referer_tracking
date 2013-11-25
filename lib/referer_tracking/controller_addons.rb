@@ -17,9 +17,9 @@ module RefererTracking::ControllerAddons
         hash[:session_referer_url] = request_ref
         hash[:session_first_url] = first_url
 
-        if RefererTracking.set_referer_cookies && !cookies[:ref_track].blank?
-          cookie_info = "v01|||#{first_url.first(200)}|||#{request_ref.first(200)}"
-          cookies[:referring_url] = { :value => cookie_info, :expires => 5.years.from_now, :domain => :all } if cookies[:ref_track].blank?
+        if RefererTracking.set_referer_cookies && cookies[RefererTracking.set_referer_cookies_name].blank?
+          cookie_info = "v01|||#{Time.now.utc.to_i}|||#{first_url.first(200)}|||#{request_ref.first(200)}"
+          cookies[RefererTracking.set_referer_cookies_name] = { :value => cookie_info, :expires => 5.years.from_now, :domain => :all }
         end
 
         logger.info( "REFERER_TRACKING_FIRST: ver04 (ref|first) ||| #{hash[:session_referer_url]} ||| #{hash[:session_first_url]}" )

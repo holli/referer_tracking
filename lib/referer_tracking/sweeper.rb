@@ -23,6 +23,13 @@ class RefererTracking::Sweeper < ActionController::Caching::Sweeper
       ref_mod[:current_request_referer_url] = request.env["HTTP_REFERER"] # or request.headers["HTTP_REFERER"]
       ref_mod[:session_id] = request.session["session_id"]
 
+      unless cookies[RefererTracking.set_referer_cookies_name].blank?
+        cookie_ver, cookie_time_org, cookie_first_url, cookie_referer_url = cookies[RefererTracking.set_referer_cookies_name].to_s.split("|||")
+        ref_mod[:cookie_first_url] = cookie_first_url
+        ref_mod[:cookie_referer_url] = cookie_referer_url
+        ref_mod[:cookie_time] = Time.at(cookie_time_org.to_i)
+      end
+
       if RefererTracking.save_cookies
         begin
           ref_mod[:cookies_yaml] = cookies.instance_variable_get('@cookies').to_yaml

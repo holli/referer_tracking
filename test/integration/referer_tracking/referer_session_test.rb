@@ -39,6 +39,10 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
 
     get 'users', {}, {"HTTP_REFERER" => (@referer = "www.some-source-forward.com")}
 
+    assert !cookies['ref_track'].blank?, "should set tracking cookie"
+    cookie_arr = cookies['ref_track'].split("|||")
+    assert_equal 4, cookie_arr.length
+
     @original_count = RefererTracking::RefererTracking.count
 
     post 'users', {:user => {:name => 'test name'}},
@@ -53,11 +57,18 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     assert !ref_track.blank?, "did not create ref tracking"
     assert_equal @referer, ref_track.session_referer_url
     assert_equal ref_session[:session_first_url], ref_track.session_first_url
+
+    assert_equal @referer, ref_track.cookie_referer_url
+    assert_equal ref_session[:session_first_url], ref_track.cookie_first_url
+    assert 10.minutes.ago < ref_track.cookie_time && ref_track.cookie_time < Time.now
+
     assert_equal @user_agent, ref_track.user_agent
     assert_equal 'testing_request_add', ref_track.request_added
     assert_equal 'testing_session_add', ref_track.session_added
+
     assert_equal @current_request_referer, ref_track.current_request_referer_url
     assert_equal "http://www.example.com/users", ref_track.current_request_url
+
     assert !ref_track.session_id.blank?
     assert !YAML::load(ref_track.cookies_yaml)["_dummy_session"].blank?, "should have saved the cookies in yaml"
 

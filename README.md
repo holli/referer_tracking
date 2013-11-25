@@ -23,6 +23,7 @@ You can query how specific objects were made by querying following. It will let 
 - session_first_url - what was the first url for this session - saved in session
 - cookie_referer_url - where did the user originally come from - saved in persistent cookie
 - cookie_first_url - where did the user originally come from - saved in persistent cookie
+- cookie_time - at what time did the user originally come - saved in persistent cookie
 - current_request_url - when creating the item
 - current_request_referer_url - when creating the item, where did the request originate
 - user_agent, ip, session_id

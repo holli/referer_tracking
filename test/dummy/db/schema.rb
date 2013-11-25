@@ -30,6 +30,7 @@ ActiveRecord::Schema.define(:version => 20131124175848) do
     t.string   "session_added"
     t.text     "cookie_referer_url"
     t.text     "cookie_first_url"
+    t.datetime "cookie_time"
   end
 
   create_table "users", :force => true do |t|
