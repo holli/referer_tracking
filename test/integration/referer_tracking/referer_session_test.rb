@@ -37,7 +37,7 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
   test "should be able to save models and safe referer_tracking at the same" do
     RefererTracking.save_cookies = true
 
-    get 'users', {}, {"HTTP_REFERER" => (@referer = "www.some-source-forward.com")}
+    get 'users', {'gclib' => 'some_keyword', 'password' => 'secret', 'more' => 'things'}, {"HTTP_REFERER" => (@referer = "www.some-source-forward.com")}
 
     assert !cookies['ref_track'].blank?, "should set tracking cookie"
     cookie_arr = cookies['ref_track'].split("|||")
@@ -52,6 +52,8 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     assert_equal @original_count + 1, RefererTracking::RefererTracking.count, "did not create referer tracking"
 
     ref_session = session["referer_tracking"]
+    assert_equal "http://www.example.com/users?gclib=some_keyword&pass=xxxx&more=things", ref_session[:session_first_url]
+
     ref_track = RefererTracking::RefererTracking.order(:created_at).last
 
     assert !ref_track.blank?, "did not create ref tracking"
