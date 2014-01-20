@@ -12,6 +12,7 @@ Gem::Specification.new do |s|
   s.homepage    = "https://github.com/holli/referer_tracking/"
   s.summary     = "Referer tracking automates better tracking in your Rails app. It tells you who creates activerecord objects / models, where did they originally come from, what url did they use etc. It does it by saving referrer url to session and saving information about the request when creating new item. It enables you to optimize your web-app user interface and flow."
   s.description = "Referer tracking automates better tracking in your Rails app. It tells you who creates activerecord objects / models, where did they originally come from, what url did they use etc. It does it by saving referrer url to session and saving information about the request when creating new item. It enables you to optimize your web-app user interface and flow."
+  s.license     = "MIT"
 
   s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.md"]
   s.test_files = Dir["test/**/*"]
