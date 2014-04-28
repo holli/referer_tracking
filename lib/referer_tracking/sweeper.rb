@@ -26,7 +26,7 @@ class RefererTracking::Sweeper < ActionController::Caching::Sweeper
       unless cookies[RefererTracking.set_referer_cookies_name].blank?
         cookie_ver, cookie_time_org, cookie_first_url, cookie_referer_url = cookies[RefererTracking.set_referer_cookies_name].to_s.split("|||")
         ref_mod[:cookie_first_url] = cookie_first_url
-        ref_mod[:cookie_referer_url] = cookie_referer_url
+        ref_mod[:cookie_referer_url] = try_to_parse(cookie_referer_url)
         ref_mod[:cookie_time] = Time.at(cookie_time_org.to_i)
       end
 
@@ -45,6 +45,27 @@ class RefererTracking::Sweeper < ActionController::Caching::Sweeper
 
   rescue Exception => e
     Rails.logger.info "RefererTracking::Sweeper.after_create problem with creating record: #{e}"
+  end
+
+  def try_to_parse(url)
+    orig_url = url
+    rescued = false
+    err_count = 0
+    err_limit = 4
+    loop do
+      err = false
+      begin
+        URI.parse(url)
+      rescue URI::InvalidURIError
+        rescued = true
+        err = true
+        err_count+= 1
+        url = url[0...-1]
+      end
+      break if !err or err_count == err_limit
+    end
+    if(rescued) then logger.info("failed parsing with url: " +orig_url) end
+    return (err_count == err_limit) ? orig_url : url
   end
 end
 

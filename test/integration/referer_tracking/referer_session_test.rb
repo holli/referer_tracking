@@ -96,7 +96,30 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     assert_response :redirect
   end
 
+  test "should try to make urls parseable before saving" do
+    RefererTracking.set_referer_cookies_ref_url_max_length = 50
+    referer_url = "http://test.xd/?url=http%3A%2F%2Ftest.inv%2Ftest%2Ftest"
+    parseable_url = "http://test.xd/?url=http%3A%2F%2Ftest.inv%2Ftest"
+    get 'users', {}, {"HTTP_REFERER" => referer_url}
+    assert_response :success
 
+    post 'users', {}
+    resulted_url = RefererTracking::RefererTracking.first.cookie_referer_url
+
+    assert_equal parseable_url, resulted_url, "should have a parseable referer url"
+  end
+
+  test "should stop trying and return the original if url appears unparseable" do
+    RefererTracking.set_referer_cookies_ref_url_max_length = 50
+    original_url = "http\im_actually€Not-Aparseable&URL%"
+    get 'users', {}, {"HTTP_REFERER" => original_url}
+    assert_response :success
+
+    post 'users', {}
+    resulted_url = RefererTracking::RefererTracking.first.cookie_referer_url
+
+    assert_equal original_url, resulted_url, "should return the original url when unparseable"
+  end
 
 end
 
