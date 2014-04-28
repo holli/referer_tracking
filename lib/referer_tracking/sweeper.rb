@@ -47,7 +47,7 @@ class RefererTracking::Sweeper < ActionController::Caching::Sweeper
     Rails.logger.info "RefererTracking::Sweeper.after_create problem with creating record: #{e}"
   end
 
-  def try_to_parse(url)
+  def self.try_to_parse(url)
     orig_url = url
     rescued = false
     err_count = 0
@@ -64,7 +64,7 @@ class RefererTracking::Sweeper < ActionController::Caching::Sweeper
       end
       break if !err or err_count == err_limit
     end
-    if(rescued) then logger.info("failed parsing with url: " +orig_url) end
+    if(rescued && defined? logger) then logger.info("failed parsing with url: " +orig_url) end
     return (err_count == err_limit) ? orig_url : url
   end
 end
