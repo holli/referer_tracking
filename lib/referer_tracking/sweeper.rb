@@ -25,8 +25,8 @@ class RefererTracking::Sweeper < ActionController::Caching::Sweeper
 
       unless cookies[RefererTracking.set_referer_cookies_name].blank?
         cookie_ver, cookie_time_org, cookie_first_url, cookie_referer_url = cookies[RefererTracking.set_referer_cookies_name].to_s.split("|||")
-        ref_mod[:cookie_first_url] = try_to_parse(cookie_first_url)
-        ref_mod[:cookie_referer_url] = try_to_parse(cookie_referer_url)
+        ref_mod[:cookie_first_url] = RefererTracking::Sweeper.try_to_parse(cookie_first_url)
+        ref_mod[:cookie_referer_url] = RefererTracking::Sweeper.try_to_parse(cookie_referer_url)
         ref_mod[:cookie_time] = Time.at(cookie_time_org.to_i)
       end
 
