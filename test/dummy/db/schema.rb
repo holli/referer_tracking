@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131124175848) do
+ActiveRecord::Schema.define(:version => 20140525105549) do
 
   create_table "referer_trackings", :force => true do |t|
     t.integer  "trackable_id"
@@ -31,6 +31,8 @@ ActiveRecord::Schema.define(:version => 20131124175848) do
     t.text     "cookie_referer_url"
     t.text     "cookie_first_url"
     t.datetime "cookie_time"
+    t.text     "infos_session"
+    t.text     "infos_request"
   end
 
   create_table "users", :force => true do |t|

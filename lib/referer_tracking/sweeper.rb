@@ -8,12 +8,14 @@ class RefererTracking::Sweeper < ActionController::Caching::Sweeper
 
       ses.each_pair do |key, value|
         ref_mod[key] = value if ref_mod.has_attribute?(key)
+        ref_mod.infos_session[key] = value unless [:session_referer_url, :session_first_url].include?(key)
       end
 
       req = assigns(:referer_tracking_request_add_infos)
       if req && req.is_a?(Hash)
         req.each_pair do |key, value|
           ref_mod[key] = value if ref_mod.has_attribute?(key)
+          ref_mod.infos_request[key] = value
         end
       end
 

@@ -5,6 +5,7 @@ class UsersController < ApplicationController
   # GET /users.json
   def index
     referer_tracking_add_info('session_added', 'testing_session_add')
+    referer_tracking_add_info('session_added_hash', 'testing_session_add_without_db_column')
     @users = User.all
 
     respond_to do |format|
@@ -45,6 +46,7 @@ class UsersController < ApplicationController
   # POST /users.json
   def create
     referer_tracking_request_set_info('request_added', 'testing_request_add')
+    referer_tracking_request_set_info('request_added_hash', 'testing_request_add_without_db_column')
     @user = User.new(params[:user])
 
     respond_to do |format|

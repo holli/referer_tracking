@@ -26,6 +26,7 @@ You can query how specific objects were made by querying following. It will let 
 - cookie_time - at what time did the user originally come - saved in persistent cookie
 - current_request_url - when creating the item
 - current_request_referer_url - when creating the item, where did the request originate
+- infos_session, infos_request - extra info you add by referer_tracking_add_info etc, see below
 - user_agent, ip, session_id
 - cookies_yaml - saves cookies if enabled in initializers with RefererTracking.save_cookies = true
                - handy for parsing information related to google analytics, e.g. number of visits
@@ -71,8 +72,7 @@ end
 
 ## Extras
 
-You can add own info to referer_tracking table by creating a column in the table and in your controller giving the
-value to referer_tracking.
+You can add own info to referer_tracking table giving in your controller the value to referer_tracking.
 
 ```
 UserController
