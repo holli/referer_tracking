@@ -4,5 +4,6 @@ module RefererTracking
     belongs_to :trackable, :polymorphic => true
     serialize :infos_session, Hash
     serialize :infos_request, Hash
+    attr_accessible :trackable_id, :trackable_type
   end
 end
