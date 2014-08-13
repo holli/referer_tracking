@@ -1,3 +1,10 @@
+# Since ActionController::Caching::Sweeper was removed from rails core in 4
+# and moved to gem rails-observers, we have trouble loading stuff in the right order
+# (see lib/referer_tracking/sweeper.rb).
+# Manually loading these here fixes the problem for now:
+require "rails/observers/activerecord/active_record"
+require "rails/observers/action_controller/caching"
+
 require "referer_tracking/engine"
 require "referer_tracking/controller_addons"
 require "referer_tracking/sweeper"
