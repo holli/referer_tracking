@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    referer_tracking (4.0.0)
+    referer_tracking (4.0.1)
       protected_attributes
       rails (~> 4.1)
       rails-observers
