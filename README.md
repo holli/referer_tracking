@@ -123,7 +123,7 @@ is not recommended but possible with session[:referer_tracking]. Information is 
 
 ## Requirements
 
-Gem has been tested with ruby 1.9.3, ruby 2.1 and Rails 3.1.
+Gem has been tested with latest Ruby and Rails combinations, see https://github.com/holli/referer_tracking/blob/master/.travis.yml for more info.
 
 [<img src="https://secure.travis-ci.org/holli/referer_tracking.png" />](http://travis-ci.org/holli/referer_tracking)
 
