@@ -50,20 +50,21 @@ in /gemfile
 
 ```
 
-ApplicationController
-  include RefererTracking::ControllerAddons
+class ApplicationController ... # in application_controller.rb
+  include RefererTracking::ControllerAddons # saves first visit infos to session and cookie
 end
 
-OtherController
+class OtherController
   # This monitors saved items and creates RefererTracking items in db, enable in controllers you want it to be used
   cache_sweeper RefererTracking::Sweeper
 end
 
-/config/initializers/referer_tracking.rb
-  # Referer tracking is enabled for these models
-  RefererTracking.add_tracking_to(User)
-  # RefererTracking.add_tracking_to(User, Messages) # for multiple models
+class User < Activerecord::Base
+  has_tracking
+end
 
+
+/config/initializers/referer_tracking.rb # if you want to modify defaults, see https://github.com/holli/referer_tracking/blob/master/lib/referer_tracking.rb#L5
   RefererTracking.save_cookies = true # saves all cookies to db
   RefererTracking.set_referer_cookies = true # saves referer and first url data to cookie
                    # You should use it unless you are very performance minded : http://yuiblog.com/blog/2007/03/01/performance-research-part-3/

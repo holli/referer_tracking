@@ -14,7 +14,7 @@ gem "jquery-rails"
 # your gem to rubygems.org.
 
 # To use debugger
-# gem 'pry'
+#gem 'pry'
 
 gem 'protected_attributes'
 gem 'rails-observers'

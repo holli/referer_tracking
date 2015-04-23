@@ -60,6 +60,18 @@ class UsersController < ApplicationController
     end
   end
 
+  def create_with_custom_saving
+    @user = User.new(params[:user])
+    @user.save
+    referer_tracking_after_create(@user)
+    render 'index'
+  end
+  def build_without_saving
+    @user = User.new(params[:user])
+    referer_tracking_after_create(@user)
+    render 'index'
+  end
+
   # PUT /users/1
   # PUT /users/1.json
   def update

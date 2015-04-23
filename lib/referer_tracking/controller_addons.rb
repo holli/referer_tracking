@@ -28,6 +28,61 @@ module RefererTracking::ControllerAddons
     end
   end
 
+  def referer_tracking_after_create(record)
+    @referer_tracking_saved_records = [] if @referer_tracking_saved_records.nil?
+    if session && session["referer_tracking"]
+      ses = session["referer_tracking"]
+
+      ref_mod = @referer_tracking_saved_records.find { |ref_mod| ref_mod.trackable == record || (record.id && ref_mod.trackable_id == record.id && ref_mod.trackable_type == record.class.to_s) }
+      if ref_mod.nil?
+        #ref_mod = RefererTracking::RefererTracking.new(:trackable_id => record.id, :trackable_type => record.class.to_s)
+        ref_mod = record.build_referer_tracking
+        @referer_tracking_saved_records.push(ref_mod)
+      end
+
+      ses.each_pair do |key, value|
+        ref_mod[key] = value if ref_mod.has_attribute?(key)
+        ref_mod.infos_session[key] = value unless [:session_referer_url, :session_first_url].include?(key)
+      end
+
+      req = @referer_tracking_request_add_infos
+      if req && req.is_a?(Hash)
+        req.each_pair do |key, value|
+          ref_mod[key] = value if ref_mod.has_attribute?(key)
+          ref_mod.infos_request[key] = value
+        end
+      end
+
+      ref_mod[:ip] = request.ip
+      ref_mod[:user_agent] = request.env['HTTP_USER_AGENT']
+      ref_mod[:current_request_url] = request.url
+      ref_mod[:current_request_referer_url] = request.env["HTTP_REFERER"] # or request.headers["HTTP_REFERER"]
+      ref_mod[:session_id] = request.session["session_id"]
+
+      unless cookies[RefererTracking.set_referer_cookies_name].blank?
+        cookie_ver, cookie_time_org, cookie_first_url, cookie_referer_url = cookies[RefererTracking.set_referer_cookies_name].to_s.split("|||")
+        ref_mod[:cookie_first_url] = cookie_first_url
+        ref_mod[:cookie_referer_url] = cookie_referer_url
+        ref_mod[:cookie_time] = Time.at(cookie_time_org.to_i)
+      end
+
+      if RefererTracking.save_cookies
+        begin
+          ref_mod[:cookies_yaml] = cookies.instance_variable_get('@cookies').to_yaml
+        rescue
+          str = "referer_tracking after create problem encoding cookie yml, probably non utf8 chars #{e}"
+          logger.error(str)
+          ref_mod[:cookies_yaml] = "error: #{str}"
+        end
+      end
+
+      ref_mod.save unless ref_mod.trackable.new_record?
+    end
+
+  rescue Exception => e
+    Rails.logger.info "RefererTracking::Sweeper.after_create problem with creating record: #{e}"
+  end
+
   ###############################################
   # Session add methods
 
@@ -77,6 +132,7 @@ module RefererTracking::ControllerAddons
     request.user_agent =~ /bot/i
   end
 
+  ###############################################
 
   def self.included(base)
     base.class_eval do
@@ -87,6 +143,7 @@ module RefererTracking::ControllerAddons
       helper_method :'referer_tracking_get_info'
     end
   end
+
 
 end
 
