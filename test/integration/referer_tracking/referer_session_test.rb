@@ -127,7 +127,7 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     assert_equal original_url, resulted_url, "should return the original url when unparseable"
   end
 
-  test "custom referer_tracking save work and still should save only one item per request" do
+  test "custom referer_tracking save work and still should save only one item per request asdf" do
     RefererTracking.save_cookies = true
 
     post '/users/create_with_custom_saving', {:user => {:name => 'test name'}}, {"HTTP_USER_AGENT" => (@user_agent = "som user agent")}

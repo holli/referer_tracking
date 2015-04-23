@@ -29,7 +29,7 @@ module RefererTracking
   end
 
   module ActiveRecordExtension
-    def has_tracking
+    def has_referer_tracking
       has_one :referer_tracking, :class_name => "RefererTracking::RefererTracking", :as => :trackable
       RefererTracking.add_sweeper_model(self)
     end

@@ -1,5 +1,5 @@
 class User < ActiveRecord::Base
   attr_accessible :name
 
-  has_tracking
+  has_referer_tracking
 end
