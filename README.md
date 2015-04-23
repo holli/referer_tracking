@@ -46,7 +46,7 @@ in /gemfile
 
 ```
 
-## Configure
+## Configure / Usage
 
 ```
 
@@ -54,13 +54,30 @@ class ApplicationController ... # in application_controller.rb
   include RefererTracking::ControllerAddons # saves first visit infos to session and cookie
 end
 
-class OtherController
+class User < Activerecord::Base
+  has_tracking
+end
+
+# By using sweepers
+# also add to Gemfile "gem 'rails-observers'"
+class UsersController
   # This monitors saved items and creates RefererTracking items in db, enable in controllers you want it to be used
   cache_sweeper RefererTracking::Sweeper
 end
 
-class User < Activerecord::Base
-  has_tracking
+# Or by using custom methods
+class UsersController
+  def create
+    @user = User.create
+    referer_tracking_after_create(@user)
+  end
+
+  def login
+    if @user.login_count == 10
+      @user.tracking_add_log_line("10_logins")
+    end
+  end
+
 end
 
 
