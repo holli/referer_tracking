@@ -21,7 +21,7 @@ Also you have tools to add log lines to tracking to get better information about
   - @user.tracking_update_status('active') if @user.login_count > 10 && @user.blog_posts.count > 1
 ```
 
-Later you can query how specific objects were made. It will let you know how did the user end up in your page and where did he create the object.
+Later you can query how specific objects were made. It will let you know how did the user end up in your page and where did he create the object. This gem helps you to save data. But you still have to do the queries scripts yourself.
 
 **How about last 100 objects with information about first pages (landing pages) and their flow**
 
@@ -30,21 +30,30 @@ RefererTracking::Tracking.where(:trackable_type => 'User').last(100).collect{|tr
 # [['http://mysite.com/landing_page_01', 'http://google.com/...', 'http://mysite.com/signup_v01/hello'] ... ]
 ```
 
+**How does specific landing page work**
+
+```
 landing_a = RefererTracking::Tracking.where(:trackable_type => 'User').find_all{|tracking| tracking.first_url.match(/yourdomain.com\/landing_page_b/)}
 puts landing_a.collect{|tracking| tracking.trackable.name}
-   - How does specific landing page work, instead of just looking creation numbers you can also see who came from there and how fast did they do their 10:th login
+   - instead of just looking creation numbers you can also see who came from there and how fast did they do their 10:th login
+```
 
+**Checking if some flow results in better conversion than other**
+
+```
 variation_a = RefererTracking::Tracking.where(:trackable_type => 'User').find_all{|tracking| tracking.get_log_lines('signup_ab_testing_a_variation')}
 variation_b = RefererTracking::Tracking.where(:trackable_type => 'User').find_all{|tracking| tracking.get_log_lines('signup_ab_testing_b_variation')}
 puts "var_a: #{variation_a.size}, active count #{variation_a.count{|tracking| tracking.status == 'active'}"
 puts "var_b: #{variation_b.size}, active count #{variation_b.count{|tracking| tracking.status == 'active'}"
-   - Would help seeing did our some flow result in better conversion that other
+```
 
-RefererTracking::Tracking.where(:trackable_type => 'User').find_all{|tracking| tracking.user_agent.to_s.include?('Android')}
-  - Or maybe checking how user_agent affects conversion
-
+**Or maybe checking how user_agent affects conversion**
 
 ```
+RefererTracking::Tracking.where(:trackable_type => 'User').find_all{|tracking| tracking.user_agent.to_s.include?('Android')}
+```
+
+
 
 ## Automatically monitored items
 
