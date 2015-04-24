@@ -10,6 +10,8 @@ Also you have tools to add log lines to tracking to get better information about
 
 ## Example use cases
 
+```
+- Example configuration
 - In UsersController.create
   - referer_tracking_after_create(@user) # saves all referrer etc information
   - @user.tracking_add_log_line('signup_ab_testing_b_variation') # having ab testing? Mark where user is going
@@ -17,13 +19,16 @@ Also you have tools to add log lines to tracking to get better information about
   - @user.tracking_add_log_line('10:th login')
 - In some scheduled script
   - @user.tracking_update_status('active') if @user.login_count > 10 && @user.blog_posts.count > 1
+```
 
 Later you can query how specific objects were made. It will let you know how did the user end up in your page and where did he create the object.
 
+**How about last 100 objects with information about first pages (landing pages) and their flow**
+
 ```
 RefererTracking::Tracking.where(:trackable_type => 'User').last(100).collect{|tracking| [tracking.first_url, tracking.referer_url, tracking.current_request_referer_url]}
-   - [['http://mysite.com/landing_page_01', 'http://google.com/...', 'http://mysite.com/signup_v01/hello'] ... ]
-   - Now we would see last 100 objects with information about first pages (landing pages) and their flow
+# [['http://mysite.com/landing_page_01', 'http://google.com/...', 'http://mysite.com/signup_v01/hello'] ... ]
+```
 
 landing_a = RefererTracking::Tracking.where(:trackable_type => 'User').find_all{|tracking| tracking.first_url.match(/yourdomain.com\/landing_page_b/)}
 puts landing_a.collect{|tracking| tracking.trackable.name}
