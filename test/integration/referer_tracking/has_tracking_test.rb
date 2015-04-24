@@ -19,7 +19,12 @@ class HasTrackingTest < ActionDispatch::IntegrationTest
     u.tracking_add_log_line('should not error even if nil')
   end
 
-
+  test "should not remove tracking even when removing trackable" do
+    u = User.first
+    tracking = u.create_tracking
+    u.destroy
+    assert RefererTracking::Tracking.where(:id => tracking.id).exists?
+  end
 
 
 end
