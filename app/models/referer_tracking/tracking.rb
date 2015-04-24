@@ -15,9 +15,17 @@ module RefererTracking
 
 
 
-    def status=(new_status, save_model: true)
-      write_attribute :status, new_status
-      add_log_line("status #{new_status}", save_model: save_model)
+    def status=(new_status)
+      if status != new_status
+        write_attribute(:status, new_status)
+        add_log_line("status #{new_status}", save_model: true)
+      end
+    end
+    def status_without_save=(new_status)
+      if status != new_status
+        write_attribute(:status, new_status)
+        add_log_line("status #{new_status}", save_model: false)
+      end
     end
 
     def add_log_line(log_line, save_model: true)
