@@ -1,6 +1,4 @@
 require "./test/test_helper"
-#require File.dirname(__FILE__) + '/../../test_helper'
-#require 'test_helper'
 
 class RefererSessionTest < ActionDispatch::IntegrationTest
   fixtures :all
@@ -44,18 +42,18 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     cookie_arr = cookies['ref_track'].split("|||")
     assert_equal 4, cookie_arr.length
 
-    @original_count = RefererTracking::RefererTracking.count
+    @original_count = RefererTracking::Tracking.count
 
     post '/users', {:user => {:name => (@name_test = "test name #{rand(9999999)}")}},
          {"HTTP_USER_AGENT" => (@user_agent = "som user agent"),
           "HTTP_REFERER" => (@current_request_referer = "localhost.inv/request_from_this_page")}
 
-    assert_equal @original_count + 1, RefererTracking::RefererTracking.count, "did not create referer tracking"
+    assert_equal @original_count + 1, RefererTracking::Tracking.count, "did not create referer tracking"
 
     ref_session = session["referer_tracking"]
     assert_equal "http://www.example.com/users?gclib=some_keyword&pass=xxxx&more=things", ref_session[:session_first_url]
 
-    ref_track = RefererTracking::RefererTracking.order(:created_at).last
+    ref_track = RefererTracking::Tracking.order(:created_at).last
     assert !ref_track.blank?, "did not create ref tracking"
 
     assert_equal @referer, ref_track.session_referer_url
@@ -83,10 +81,10 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     assert user, "Problem in test controller, did not create user right way"
     assert_equal user, ref_track.trackable, "should be connected to created user"
     assert_equal user.id, ref_track.trackable.id, "models didn't match from ref_track.trackable"
-    assert_equal user.referer_tracking.id, ref_track.id, "models didn't match from user.referer_tracking"
+    assert_equal user.tracking.id, ref_track.id, "models didn't match from user.referer_tracking"
 
     put "/users/#{user.id}", {:user => {:name => 'test name'}}, {"HTTP_USER_AGENT" => (@user_agent = "som user agent")}
-    assert_equal @original_count + 1, RefererTracking::RefererTracking.count, "should not create RefererTracking on normal save"
+    assert_equal @original_count + 1, RefererTracking::Tracking.count, "should not create RefererTracking on normal save"
 
   end
 
@@ -94,7 +92,7 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
   test "error in sweeper should not result error in response" do
     get '/users', {}, {"HTTP_REFERER" => (@referer = "www.some-source-forward.com")}
 
-    RefererTracking::RefererTracking.any_instance.stubs(:save).raises(Exception)
+    RefererTracking::Tracking.any_instance.stubs(:save).raises(Exception)
 
     post '/users', {:user => {:name => 'test name'}}, {"HTTP_USER_AGENT" => (@user_agent = "som user agent")}
 
@@ -109,7 +107,7 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     post '/users', {}
-    resulted_url = RefererTracking::RefererTracking.first.cookie_referer_url
+    resulted_url = RefererTracking::Tracking.first.cookie_referer_url
 
     assert_equal parseable_url, resulted_url, "should have a parseable referer url"
   end
@@ -121,8 +119,8 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     post '/users', {}
-    assert_equal 1, RefererTracking::RefererTracking.count, "should create one item"
-    resulted_url = RefererTracking::RefererTracking.first.cookie_referer_url
+    assert_equal 1, RefererTracking::Tracking.count, "should create one item"
+    resulted_url = RefererTracking::Tracking.first.cookie_referer_url
 
     assert_equal original_url, resulted_url, "should return the original url when unparseable"
   end
@@ -131,14 +129,14 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     RefererTracking.save_cookies = true
 
     post '/users/create_with_custom_saving', {:user => {:name => 'test name'}}, {"HTTP_USER_AGENT" => (@user_agent = "som user agent")}
-    assert_equal 1, RefererTracking::RefererTracking.count, "should create one item"
+    assert_equal 1, RefererTracking::Tracking.count, "should create one item"
   end
 
   test "custom referer_tracking save should not save if item itself is not saved" do
     RefererTracking.save_cookies = true
 
     post '/users/build_without_saving', {:user => {:name => 'test name'}}, {"HTTP_USER_AGENT" => (@user_agent = "som user agent")}
-    assert_equal 0, RefererTracking::RefererTracking.count, "should create one item"
+    assert_equal 0, RefererTracking::Tracking.count, "should create one item"
   end
 
 end

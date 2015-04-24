@@ -35,8 +35,8 @@ module RefererTracking::ControllerAddons
 
       ref_mod = @referer_tracking_saved_records.find { |ref_mod| ref_mod.trackable == record || (record.id && ref_mod.trackable_id == record.id && ref_mod.trackable_type == record.class.to_s) }
       if ref_mod.nil?
-        #ref_mod = RefererTracking::RefererTracking.new(:trackable_id => record.id, :trackable_type => record.class.to_s)
-        ref_mod = record.build_referer_tracking
+        #ref_mod = RefererTracking::Tracking.new(:trackable_id => record.id, :trackable_type => record.class.to_s)
+        ref_mod = record.build_tracking
         @referer_tracking_saved_records.push(ref_mod)
       end
 

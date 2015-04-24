@@ -11,7 +11,7 @@ saved to referer_trackings table. Also current request url and current request r
 You can query how specific objects were made by querying following. It will let you know how did the user end up in your page and where did he create the object.
 
 ```
-  RefererTracking::RefererTracking.where(:trackable_type => 'class_name').collect{|rt| [rt.first_url, rt.referer_url, rt.current_request_referer_url]}
+  RefererTracking::Tracking.where(:trackable_type => 'class_name').collect{|rt| [rt.first_url, rt.referer_url, rt.current_request_referer_url]}
 ```
 
 [<img src="https://secure.travis-ci.org/holli/referer_tracking.png" />](http://travis-ci.org/holli/referer_tracking)

@@ -11,6 +11,8 @@ module RefererTracking
   self.set_referer_cookies_ref_url_max_length = 200
   self.use_observer_sweeper_if_found = true # if you have gem 'rails-observers' included we will use sweepers to save infos
 
+
+
   mattr_accessor :add_observe_to_classes
   self.add_observe_to_classes = []
   def self.add_sweeper_model(model)
@@ -29,17 +31,12 @@ module RefererTracking
     end
   end
 
-  module ActiveRecordExtension
-    def has_referer_tracking
-      has_one :referer_tracking, :class_name => "RefererTracking::RefererTracking", :as => :trackable
-      RefererTracking.add_sweeper_model(self)
-    end
-  end
 
 
   class Railtie < Rails::Railtie
     initializer 'referer_tracking.insert_into_active_record' do
       ActiveSupport.on_load :active_record do
+        require 'referer_tracking/active_record_extensions'
         ActiveRecord::Base.send(:extend, RefererTracking::ActiveRecordExtension)
       end
     end

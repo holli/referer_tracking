@@ -9,36 +9,38 @@
 # from scratch. The latter is a flawed and unsustainable approach (the more migrations
 # you'll amass, the slower it'll run and the greater likelihood for issues).
 #
-# It's strongly recommended to check this file into your version control system.
+# It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140525105549) do
+ActiveRecord::Schema.define(version: 20150424090312) do
 
-  create_table "referer_trackings", :force => true do |t|
+  create_table "referer_trackings", force: :cascade do |t|
     t.integer  "trackable_id"
-    t.string   "trackable_type"
+    t.string   "trackable_type",              limit: 255
     t.text     "session_referer_url"
     t.text     "session_first_url"
     t.text     "current_request_url"
     t.text     "current_request_referer_url"
-    t.string   "user_agent"
-    t.string   "ip"
-    t.string   "session_id"
+    t.string   "user_agent",                  limit: 255
+    t.string   "ip",                          limit: 255
+    t.string   "session_id",                  limit: 255
     t.text     "cookies_yaml"
-    t.datetime "created_at",                  :null => false
-    t.datetime "updated_at",                  :null => false
-    t.string   "request_added"
-    t.string   "session_added"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "request_added",               limit: 255
+    t.string   "session_added",               limit: 255
     t.text     "cookie_referer_url"
     t.text     "cookie_first_url"
     t.datetime "cookie_time"
     t.text     "infos_session"
     t.text     "infos_request"
+    t.text     "log"
+    t.string   "status"
   end
 
-  create_table "users", :force => true do |t|
-    t.string   "name"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+  create_table "users", force: :cascade do |t|
+    t.string   "name",       limit: 255
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
 end
