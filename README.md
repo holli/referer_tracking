@@ -1,22 +1,47 @@
 # RefererTracking
 
 Referer tracking automates better tracking in your Rails app. It tells you who creates
-activerecord objects / models, where did they originally come from, what url did they use etc.
+activerecord objects / models, where did they originally come from (http referrer), what url did they use etc.
 It does it by saving referrer url to session and saving information about the request when creating new item.
-It enables you to optimize your web-app user interface and flow.
 
-Http referer_url and first_url are saved to session in controller before_filter. When creating a new model these values are
-saved to referer_trackings table. Also current request url and current request referer are saved.
-
-You can query how specific objects were made by querying following. It will let you know how did the user end up in your page and where did he create the object.
-
-```
-  RefererTracking::Tracking.where(:trackable_type => 'class_name').collect{|rt| [rt.first_url, rt.referer_url, rt.current_request_referer_url]}
-```
+Also you have tools to add log lines to tracking to get better information about flow of the users or how ab-tests affect later usage.
 
 [<img src="https://secure.travis-ci.org/holli/referer_tracking.png" />](http://travis-ci.org/holli/referer_tracking)
 
-## Monitored items
+## Example use cases
+
+- In UsersController.create
+  - referer_tracking_after_create(@user) # saves all referrer etc information
+  - @user.tracking_add_log_line('signup_ab_testing_b_variation') # having ab testing? Mark where user is going
+- In SessionsController.create
+  - @user.tracking_add_log_line('10:th login')
+- In some scheduled script
+  - @user.tracking_update_status('active') if @user.login_count > 10 && @user.blog_posts.count > 1
+
+Later you can query how specific objects were made. It will let you know how did the user end up in your page and where did he create the object.
+
+```
+RefererTracking::Tracking.where(:trackable_type => 'User').last(100).collect{|tracking| [tracking.first_url, tracking.referer_url, tracking.current_request_referer_url]}
+   - [['http://mysite.com/landing_page_01', 'http://google.com/...', 'http://mysite.com/signup_v01/hello'] ... ]
+   - Now we would see last 100 objects with information about first pages (landing pages) and their flow
+
+landing_a = RefererTracking::Tracking.where(:trackable_type => 'User').find_all{|tracking| tracking.first_url.match(/yourdomain.com\/landing_page_b/)}
+puts landing_a.collect{|tracking| tracking.trackable.name}
+   - How does specific landing page work, instead of just looking creation numbers you can also see who came from there and how fast did they do their 10:th login
+
+variation_a = RefererTracking::Tracking.where(:trackable_type => 'User').find_all{|tracking| tracking.get_log_lines('signup_ab_testing_a_variation')}
+variation_b = RefererTracking::Tracking.where(:trackable_type => 'User').find_all{|tracking| tracking.get_log_lines('signup_ab_testing_b_variation')}
+puts "var_a: #{variation_a.size}, active count #{variation_a.count{|tracking| tracking.status == 'active'}"
+puts "var_b: #{variation_b.size}, active count #{variation_b.count{|tracking| tracking.status == 'active'}"
+   - Would help seeing did our some flow result in better conversion that other
+
+RefererTracking::Tracking.where(:trackable_type => 'User').find_all{|tracking| tracking.user_agent.to_s.include?('Android')}
+  - Or maybe checking how user_agent affects conversion
+
+
+```
+
+## Automatically monitored items
 
 ```
 - session_referer_url - where did the user originally come from - saved in session
@@ -30,6 +55,8 @@ You can query how specific objects were made by querying following. It will let 
 - user_agent, ip, session_id
 - cookies_yaml - saves cookies if enabled in initializers with RefererTracking.save_cookies = true
                - handy for parsing information related to google analytics, e.g. number of visits
+- status - use by model.tracking_update_status('active') etc to add information
+- log - so you can add lines later
 ```
 
 
@@ -109,12 +136,17 @@ end
 
 **Helpers include**
 
-- referer_tracking_first_request?
-- referer_tracking_add_info(key, value) # only set in the first time called - saved in session
-- referer_tracking_set_info(key, value) # change value always - saved in session
-- referer_tracking_get_key(key)
-- referer_tracking_request_set_info
-- referer_tracking_request_add_infos # hash of current request infos
+- **In Controllers**
+  - referer_tracking_first_request?
+  - referer_tracking_add_info(key, value) # only set in the first time called - saved in session
+  - referer_tracking_set_info(key, value) # change value always - saved in session
+  - referer_tracking_get_key(key)
+  - referer_tracking_request_set_info
+  - referer_tracking_request_add_infos # hash of current request infos
+- **In Models** (E.g. when including in user-model)
+  - user.tracking_update_status('active')
+  - user.tracking_add_log_line('10:th login') # e.g. to track users flow
+  - user.tracking.get_log_lines(/login/) # results all log lines matching regexp
 
 ## Inside
 
