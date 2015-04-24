@@ -28,22 +28,22 @@ class TrackingTest < ActiveSupport::TestCase
 
   test "status_without_save" do
     rt_created = RefererTracking::Tracking.create
-    rt_created.status = 'active'
+    rt_created.update_status 'active'
     assert !rt_created.changed?
-    rt_created.status_without_save = 'new_status'
+    rt_created.status = 'new_status'
     assert rt_created.changed?
   end
 
   test "status change" do
     rt_created = RefererTracking::Tracking.create
-    rt_created.status = 'active'
+    rt_created.update_status 'active'
 
     rt = RefererTracking::Tracking.last
     assert_equal 'active', rt.status
     assert_equal 1, rt.log.lines.count
     assert_match /#{Date.today.to_s(:db)}.*: status active$/, rt.log
 
-    rt.status=('active')
+    rt.update_status 'active'
     assert_equal 1, rt.log.lines.count, "should not alter anything if status stays the same"
   end
 

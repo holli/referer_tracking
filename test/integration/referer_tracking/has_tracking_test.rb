@@ -7,7 +7,7 @@ class HasTrackingTest < ActionDispatch::IntegrationTest
     u = User.first
     u.create_tracking
     u.tracking_add_log_line('should not error even if nil')
-    u.tracking_status = 'active'
+    u.tracking_update_status('active')
 
     assert_equal 2, u.tracking.log.lines.count
     assert_equal 'active', u.tracking.status
