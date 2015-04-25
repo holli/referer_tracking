@@ -4,7 +4,7 @@ Referer tracking automates better tracking in your Rails app. It tells you who c
 activerecord objects / models, where did they originally come from (http referrer), what url did they use etc.
 It does it by saving referrer url to session and saving information about the request when creating new item.
 
-Also you have tools to add log lines to tracking to get better information about flow of the users or how ab-tests affect later usage.
+Also includes tools to add log lines to models to get better information about the flow of the users or which A/B testing variation was used for which model. Aim is to make data collection for model creation, A/B-testing and growth hacking easier.
 
 [<img src="https://secure.travis-ci.org/holli/referer_tracking.png" />](http://travis-ci.org/holli/referer_tracking)
 
@@ -30,7 +30,7 @@ RefererTracking::Tracking.where(:trackable_type => 'User').last(100).collect{|tr
 # [['http://mysite.com/landing_page_01', 'http://google.com/...', 'http://mysite.com/signup_v01/hello'] ... ]
 ```
 
-**How does specific landing page work**
+**How does a specific landing page work**
 
 ```
 landing_a = RefererTracking::Tracking.where(:trackable_type => 'User').find_all{|tracking| tracking.first_url.match(/yourdomain.com\/landing_page_b/)}
