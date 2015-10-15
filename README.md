@@ -96,7 +96,7 @@ class ApplicationController ... # in application_controller.rb
 end
 
 class User < Activerecord::Base
-  has_tracking
+  has_referer_tracking
 end
 
 # By using sweepers
