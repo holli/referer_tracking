@@ -47,7 +47,7 @@ class UsersController < ApplicationController
   def create
     referer_tracking_request_set_info('request_added', 'testing_request_add')
     referer_tracking_request_set_info('request_added_hash', 'testing_request_add_without_db_column')
-    @user = User.new(params[:user])
+    @user = User.new(user_params)
 
     respond_to do |format|
       if @user.save
@@ -61,13 +61,13 @@ class UsersController < ApplicationController
   end
 
   def create_with_custom_saving
-    @user = User.new(params[:user])
+    @user = User.new(user_params)
     @user.save
     referer_tracking_after_create(@user)
     render 'index'
   end
   def build_without_saving
-    @user = User.new(params[:user])
+    @user = User.new(user_params)
     referer_tracking_after_create(@user)
     render 'index'
   end
@@ -78,7 +78,7 @@ class UsersController < ApplicationController
     @user = User.find(params[:id])
 
     respond_to do |format|
-      if @user.update_attributes(params[:user])
+      if @user.update_attributes(user_params)
         format.html { redirect_to @user, :notice => 'User was successfully updated.' }
         format.json { head :ok }
       else
@@ -98,5 +98,10 @@ class UsersController < ApplicationController
       format.html { redirect_to users_url }
       format.json { head :ok }
     end
+  end
+
+  private
+  def user_params
+    params.require('user').permit('name') if params['user']
   end
 end

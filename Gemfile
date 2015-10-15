@@ -16,9 +16,7 @@ gem "jquery-rails"
 # To use debugger
 gem 'pry'
 
-gem 'protected_attributes'
 gem 'rails-observers'
-
 
 # For travis testing
 # http://schneems.com/post/50991826838/testing-against-multiple-rails-versions
