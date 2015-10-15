@@ -80,7 +80,7 @@ module RefererTracking::ControllerAddons
     end
 
   rescue Exception => e
-    Rails.logger.info "RefererTracking::Sweeper.after_create problem with creating record: #{e}"
+    Rails.logger.info "RefererTracking::ControllerAddons.after_create problem with creating record: #{e}"
   end
 
   ###############################################
