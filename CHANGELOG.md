@@ -1,6 +1,6 @@
 ## 4.2.0 (2015-12-xx)
 
-  - Removed usage of sweepers/observers. Tests were not reliable for enough
+  - Removed usage of sweepers/observers. Tests were not reliable for enough. Better always use custom saving.
 
 ## 4.1.0 (2015-04-xx)
 
