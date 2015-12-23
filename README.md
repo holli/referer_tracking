@@ -99,14 +99,7 @@ class User < Activerecord::Base
   has_referer_tracking
 end
 
-# By using sweepers
-# also add to Gemfile "gem 'rails-observers'"
-class UsersController
-  # This monitors saved items and creates RefererTracking items in db, enable in controllers you want it to be used
-  cache_sweeper RefererTracking::Sweeper
-end
-
-# Or by using custom methods
+# And in controller
 class UsersController
   def create
     @user = User.create

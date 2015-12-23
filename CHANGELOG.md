@@ -1,3 +1,7 @@
+## 4.2.0 (2015-12-xx)
+
+  - Removed usage of sweepers/observers. Tests were not reliable for enough
+
 ## 4.1.0 (2015-04-xx)
 
   - Renamed model from RefererTracking::RefererTracking to RefererTracking::Tracking

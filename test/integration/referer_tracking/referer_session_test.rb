@@ -89,7 +89,7 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
   end
 
 
-  test "error in sweeper should not result error in response" do
+  test "error in tracking save should not result error in response" do
     get '/users', {}, {"HTTP_REFERER" => (@referer = "www.some-source-forward.com")}
 
     RefererTracking::Tracking.any_instance.stubs(:save).raises(Exception)
@@ -107,6 +107,7 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     post '/users', {}
+    assert_not_nil RefererTracking::Tracking.first, "should have created tracking"
     resulted_url = RefererTracking::Tracking.first.cookie_referer_url
 
     assert_equal parseable_url, resulted_url, "should have a parseable referer url"

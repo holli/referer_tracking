@@ -6,6 +6,5 @@ module RefererTracking::ActiveRecordExtension
       delegate :'update_status', to: :tracking, prefix: true, allow_nil: true
     end
 
-    RefererTracking.add_sweeper_model(self)
   end
 end

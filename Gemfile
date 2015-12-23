@@ -16,8 +16,6 @@ gem "jquery-rails"
 # To use debugger
 gem 'pry'
 
-gem 'rails-observers'
-
 # For travis testing
 # http://schneems.com/post/50991826838/testing-against-multiple-rails-versions
 rails_version = ENV["RAILS_VERSION"] || "default"

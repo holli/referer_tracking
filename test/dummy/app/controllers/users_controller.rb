@@ -1,5 +1,4 @@
 class UsersController < ApplicationController
-  cache_sweeper RefererTracking::Sweeper
 
   # GET /users
   # GET /users.json
@@ -49,14 +48,11 @@ class UsersController < ApplicationController
     referer_tracking_request_set_info('request_added_hash', 'testing_request_add_without_db_column')
     @user = User.new(user_params)
 
-    respond_to do |format|
-      if @user.save
-        format.html { redirect_to @user, :notice => 'User was successfully created.' }
-        format.json { render :json => @user, :status => :created, :location => @user }
-      else
-        format.html { render :action => "new" }
-        format.json { render :json => @user.errors, :status => :unprocessable_entity }
-      end
+    if @user.save
+      referer_tracking_after_create(@user)
+      redirect_to @user, :notice => 'User was successfully created.'
+    else
+      render :action => "new"
     end
   end
 
