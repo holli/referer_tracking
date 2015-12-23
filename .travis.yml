@@ -1,8 +1,9 @@
 rvm:
   - 2.2
   - 2.1
+before_install:
+  - gem install bundler # uses newest bundler
 before_script:
-  - 'gem install bundler'
   - 'RAILS_ENV=test bundle exec rake db:create db:migrate --trace'
 env:
   - "RAILS_VERSION=4.1.10"
