@@ -5,4 +5,4 @@ before_script:
   - 'RAILS_ENV=test bundle exec rake db:create db:migrate --trace'
 env:
   - "RAILS_VERSION=4.1.10"
-  - "RAILS_VERSION=4.2.1"
+  - "RAILS_VERSION=4.2.5"
