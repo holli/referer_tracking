@@ -1,4 +1,6 @@
-$:.push File.expand_path("../lib", __FILE__)
+# coding: utf-8
+lib = File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 # Maintain your gem's version:
 require "referer_tracking/version"
@@ -19,6 +21,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency "rails", "~> 4.1"
 
+  s.add_development_dependency "bundler", "~> 1.10"
   s.add_development_dependency "sqlite3"
   s.add_development_dependency "mocha"
 end
