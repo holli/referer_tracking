@@ -1,3 +1,7 @@
+## 4.4.0 (2018-03-20)
+
+  - Added Rails 5 support, dropped Rails 4
+
 ## 4.2.0 (2015-12-xx)
 
   - Removed usage of sweepers/observers. Tests were not reliable for enough. Better always use custom saving.

@@ -129,7 +129,7 @@ You can add own info to referer_tracking table giving in your controller the val
 ```
 UserController
   # Example of adding info to referer_tracking, remember to create migration to add column first
-  before_filter do |controller|
+  before_action do |controller|
     # adds to session, so saved to later requests
     referer_tracking_add_info('referer_id', session[:referer_id])
 
@@ -157,7 +157,7 @@ end
 
 ## Inside
 
-RefererTracking::ControllerAddons creates before_filter that saves referer_information to session. Direct access
+RefererTracking::ControllerAddons creates before_action that saves referer_information to session. Direct access
 is not recommended but possible with session[:referer_tracking]. Information is not saved for known bots.
 
 ## Requirements

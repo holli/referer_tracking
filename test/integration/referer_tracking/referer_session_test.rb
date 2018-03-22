@@ -8,7 +8,7 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
   end
 
   test "should save referer to session" do
-    get '/users', {}, {"HTTP_REFERER" => (@referer = "www.some-source-forward.com")}
+    get '/users', headers: {"HTTP_REFERER" => (@referer = "www.some-source-forward.com")}
     assert_response :success
 
     ref = session["referer_tracking"]
@@ -19,11 +19,11 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
   end
 
   test "should not update session in second requests" do
-    get '/users', {}, {"HTTP_REFERER" => (@referer = "www.some-source-forward.com")}
+    get '/users', headers: {"HTTP_REFERER" => (@referer = "www.some-source-forward.com")}
     assert_response :success
 
     user = User.first
-    get "/users/#{user.id}", {}, {"HTTP_REFERER" => "second_url"}
+    get "/users/#{user.id}", headers: {"HTTP_REFERER" => "second_url"}
 
     ref = session["referer_tracking"]
     assert_equal @referer, ref[:session_referer_url], "should not touch referer_url"
@@ -36,7 +36,7 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
   test "should be able to save models and safe referer_tracking at the same" do
     RefererTracking.save_cookies = true
 
-    get '/users', {'gclib' => 'some_keyword', 'password' => 'secret', 'more' => 'things'}, {"HTTP_REFERER" => (@referer = "www.some-source-forward.com")}
+    get '/users', params: {'gclib' => 'some_keyword', 'password' => 'secret', 'more' => 'things'}, headers: {"HTTP_REFERER" => (@referer = "www.some-source-forward.com")}
 
     assert !cookies['ref_track'].blank?, "should set tracking cookie"
     cookie_arr = cookies['ref_track'].split("|||")
@@ -44,9 +44,9 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
 
     @original_count = RefererTracking::Tracking.count
 
-    post '/users', {:user => {:name => (@name_test = "test name #{rand(9999999)}")}},
-         {"HTTP_USER_AGENT" => (@user_agent = "som user agent"),
-          "HTTP_REFERER" => (@current_request_referer = "localhost.inv/request_from_this_page")}
+    post '/users', params: {:user => {:name => (@name_test = "test name #{rand(9999999)}")}},
+         headers: {"HTTP_USER_AGENT" => (@user_agent = "som user agent"),
+                   "HTTP_REFERER" => (@current_request_referer = "localhost.inv/request_from_this_page")}
 
     assert_equal @original_count + 1, RefererTracking::Tracking.count, "did not create referer tracking"
 
@@ -83,18 +83,18 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     assert_equal user.id, ref_track.trackable.id, "models didn't match from ref_track.trackable"
     assert_equal user.tracking.id, ref_track.id, "models didn't match from user.referer_tracking"
 
-    put "/users/#{user.id}", {:user => {:name => 'test name'}}, {"HTTP_USER_AGENT" => (@user_agent = "som user agent")}
+    put "/users/#{user.id}", params: {:user => {:name => 'test name'}}, headers: {"HTTP_USER_AGENT" => (@user_agent = "som user agent")}
     assert_equal @original_count + 1, RefererTracking::Tracking.count, "should not create RefererTracking on normal save"
 
   end
 
 
   test "error in tracking save should not result error in response" do
-    get '/users', {}, {"HTTP_REFERER" => (@referer = "www.some-source-forward.com")}
+    get '/users', headers: {"HTTP_REFERER" => (@referer = "www.some-source-forward.com")}
 
     RefererTracking::Tracking.any_instance.stubs(:save).raises(Exception)
 
-    post '/users', {:user => {:name => 'test name'}}, {"HTTP_USER_AGENT" => (@user_agent = "som user agent")}
+    post '/users', params: {:user => {:name => 'test name'}}, headers: {"HTTP_USER_AGENT" => (@user_agent = "som user agent")}
 
     assert_response :redirect
   end
@@ -103,10 +103,10 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     RefererTracking.set_referer_cookies_ref_url_max_length = 50
     referer_url = "http://test.xd/?url=http%3A%2F%2Ftest.inv%2Ftest%2Ftest"
     parseable_url = "http://test.xd/?url=http%3A%2F%2Ftest.inv%2Ftest%2" # first 50 chars, ending %2
-    get '/users', {}, {"HTTP_REFERER" => referer_url}
+    get '/users', headers: {"HTTP_REFERER" => referer_url}
     assert_response :success
 
-    post '/users', {}
+    post '/users'
     assert_not_nil RefererTracking::Tracking.first, "should have created tracking"
     resulted_url = RefererTracking::Tracking.first.cookie_referer_url
 
@@ -116,10 +116,10 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
   test "should stop trying and return the original if url appears unparseable" do
     RefererTracking.set_referer_cookies_ref_url_max_length = 50
     original_url = "http\im_actually€Not-Aparseable&URL%"
-    get '/users', {}, {"HTTP_REFERER" => original_url}
+    get '/users', headers: {"HTTP_REFERER" => original_url}
     assert_response :success
 
-    post '/users', {}
+    post '/users'
     assert_equal 1, RefererTracking::Tracking.count, "should create one item"
     resulted_url = RefererTracking::Tracking.first.cookie_referer_url
 
@@ -129,14 +129,14 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
   test "custom referer_tracking save work and still should save only one item per request" do
     RefererTracking.save_cookies = true
 
-    post '/users/create_with_custom_saving', {:user => {:name => 'test name'}}, {"HTTP_USER_AGENT" => (@user_agent = "som user agent")}
+    post '/users/create_with_custom_saving', params: {:user => {:name => 'test name'}}, headers: {"HTTP_USER_AGENT" => (@user_agent = "som user agent")}
     assert_equal 1, RefererTracking::Tracking.count, "should create one item"
   end
 
   test "custom referer_tracking save should not save if item itself is not saved" do
     RefererTracking.save_cookies = true
 
-    post '/users/build_without_saving', {:user => {:name => 'test name'}}, {"HTTP_USER_AGENT" => (@user_agent = "som user agent")}
+    post '/users/build_without_saving', params: {:user => {:name => 'test name'}}, headers: {"HTTP_USER_AGENT" => (@user_agent = "som user agent")}
     assert_equal 0, RefererTracking::Tracking.count, "should create one item"
   end
 

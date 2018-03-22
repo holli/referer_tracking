@@ -8,12 +8,8 @@ Dummy::Application.configure do
   config.cache_classes = true
 
   # Configure static asset server for tests with Cache-Control for performance
-  if Rails.version.to_f < 4.2
-    config.serve_static_assets = true
-  else
-    config.serve_static_files = false
-  end
-  config.static_cache_control = "public, max-age=3600"
+  config.public_file_server.enabled = false
+  config.public_file_server.headers = { 'Cache-Control' => 'public, max-age=3600' }
 
   # Show full error reports and disable caching
   config.consider_all_requests_local       = true

@@ -2,7 +2,7 @@ module RefererTracking::ControllerAddons
 
   #before_filter :before_filter_referer_tracking_save_to_session
 
-  def before_filter_referer_tracking_save_to_session
+  def before_action_referer_tracking_save_to_session
     unless request_is_from_a_known_bot?
       if session[:referer_tracking].nil?
         @referer_tracking_first_request = true
@@ -136,7 +136,7 @@ module RefererTracking::ControllerAddons
 
   def self.included(base)
     base.class_eval do
-      before_filter :before_filter_referer_tracking_save_to_session
+      before_action :before_action_referer_tracking_save_to_session
       helper_method :'referer_tracking_first_request?'
       helper_method :'referer_tracking_add_info'
       helper_method :'referer_tracking_set_info'
