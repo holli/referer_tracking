@@ -1,4 +1,4 @@
-class TableRename < ActiveRecord::Migration
+class TableRename < ActiveRecord::Migration[4.2]
   def up
     #rename_table :referer_tracking_referer_trackings, :referer_trackings
     add_column :referer_trackings, :request_added, :string
