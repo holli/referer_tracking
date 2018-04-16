@@ -1,3 +1,7 @@
+## 4.4.1 (2018-04-16)
+
+  - Fixed so that too long user_agents wont cause exception
+
 ## 4.4.0 (2018-03-20)
 
   - Added Rails 5 support, dropped Rails 4

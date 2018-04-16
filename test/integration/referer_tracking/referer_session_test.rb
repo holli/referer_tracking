@@ -133,6 +133,22 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     assert_equal 1, RefererTracking::Tracking.count, "should create one item"
   end
 
+  test "custom referer_tracking save work with too long user agent" do
+    RefererTracking.save_cookies = true
+
+    too_long_user_agent = "Mozilla/5.0 (iPhone; CPU iPhone OS 11_2_6 like Mac OS X) AppleWebKit/604.5.6 (KHTML, like Gecko) Mobile/15D100 [FBAN/MessengerForiOS; ... #{(0...400).map { (65+rand(26)).chr }.join}"
+    post '/users/create_with_custom_saving', params: {:user => {:name => 'test name'}},
+         headers: {"HTTP_USER_AGENT" => (@user_agent = too_long_user_agent)}
+    assert_equal 1, RefererTracking::Tracking.count, "should create one item"
+
+    assert too_long_user_agent.size > 400
+    rt = RefererTracking::Tracking.last
+    assert_equal too_long_user_agent.first(100), rt.user_agent.first(100)
+    assert rt.user_agent.size < 255, "should handle db limits" # testing manually because sqlite does not enforce limits same way as mysql
+  end
+
+
+
   test "custom referer_tracking save should not save if item itself is not saved" do
     RefererTracking.save_cookies = true
 

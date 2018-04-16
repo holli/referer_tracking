@@ -54,7 +54,7 @@ module RefererTracking::ControllerAddons
       end
 
       ref_mod[:ip] = request.ip
-      ref_mod[:user_agent] = request.env['HTTP_USER_AGENT']
+      ref_mod[:user_agent] = request.env['HTTP_USER_AGENT'].to_s.first(200)
       ref_mod[:current_request_url] = request.url
       ref_mod[:current_request_referer_url] = request.env["HTTP_REFERER"] # or request.headers["HTTP_REFERER"]
       ref_mod[:session_id] = request.session["session_id"]
