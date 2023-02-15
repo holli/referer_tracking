@@ -22,8 +22,8 @@ class TrackingTest < ActiveSupport::TestCase
 
     assert (log = RefererTracking::Tracking.last.log)
     assert_equal 2, log.to_s.lines.count
-    assert_match /#{Date.today.to_s(:db)}.*: first_line$/, log.lines.first
-    assert_match /#{Date.today.to_s(:db)}.*: second line/, log.lines.last
+    assert_match(/#{Date.today.to_s(:db)}.*: first_line$/, log.lines.first)
+    assert_match(/#{Date.today.to_s(:db)}.*: second line/, log.lines.last)
   end
 
   test "status_without_save" do

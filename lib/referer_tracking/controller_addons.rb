@@ -29,7 +29,7 @@ module RefererTracking::ControllerAddons
   end
 
   def referer_tracking_after_create(record)
-    @referer_tracking_saved_records = [] if @referer_tracking_saved_records.nil?
+    @referer_tracking_saved_records ||= []
     if session && session["referer_tracking"]
       ses = session["referer_tracking"]
 
@@ -45,11 +45,12 @@ module RefererTracking::ControllerAddons
         ref_mod.infos_session[key] = value unless [:session_referer_url, :session_first_url].include?(key)
       end
 
-      req = @referer_tracking_request_add_infos
-      if req && req.is_a?(Hash)
-        req.each_pair do |key, value|
-          ref_mod[key] = value if ref_mod.has_attribute?(key)
-          ref_mod.infos_request[key] = value
+      if defined?(@referer_tracking_request_add_infos)
+        if (req = @referer_tracking_request_add_infos) && req.is_a?(Hash)
+          req.each_pair do |key, value|
+            ref_mod[key] = value if ref_mod.has_attribute?(key)
+            ref_mod.infos_request[key] = value
+          end
         end
       end
 
@@ -60,7 +61,7 @@ module RefererTracking::ControllerAddons
       ref_mod[:session_id] = request.session["session_id"]
 
       unless cookies[RefererTracking.set_referer_cookies_name].blank?
-        cookie_ver, cookie_time_org, cookie_first_url, cookie_referer_url = cookies[RefererTracking.set_referer_cookies_name].to_s.split("|||")
+        _cookie_ver, cookie_time_org, cookie_first_url, cookie_referer_url = cookies[RefererTracking.set_referer_cookies_name].to_s.split("|||")
         ref_mod[:cookie_first_url] = cookie_first_url
         ref_mod[:cookie_referer_url] = cookie_referer_url
         ref_mod[:cookie_time] = Time.at(cookie_time_org.to_i)

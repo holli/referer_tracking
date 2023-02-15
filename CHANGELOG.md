@@ -1,3 +1,7 @@
+## 4.5.0 (2022-01-01)
+
+  - Dropped support for rails 5.2 and old ruby
+
 ## 4.4.1 (2018-04-16)
 
   - Fixed so that too long user_agents wont cause exception
