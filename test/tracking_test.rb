@@ -41,7 +41,7 @@ class TrackingTest < ActiveSupport::TestCase
     rt = RefererTracking::Tracking.last
     assert_equal 'active', rt.status
     assert_equal 1, rt.log.lines.count
-    assert_match /#{Date.today.to_s(:db)}.*: status active$/, rt.log
+    assert_match(/#{Date.today.to_s(:db)}.*: status active$/, rt.log)
 
     rt.update_status 'active'
     assert_equal 1, rt.log.lines.count, "should not alter anything if status stays the same"
