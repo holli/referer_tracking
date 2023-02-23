@@ -26,6 +26,24 @@ class TrackingTest < ActiveSupport::TestCase
     assert_match(/#{Date.today.to_s(:db)}.*: second line/, log.lines.last)
   end
 
+  test "add_log_line should not save if new record" do
+    rt = RefererTracking::Tracking.new
+
+    assert rt.new_record?
+    rt.add_log_line 'first_line'
+    assert rt.new_record?
+    assert rt.changed?
+
+    rt.save!
+    rt.add_log_line "second\nline"
+    assert !rt.changed?
+
+    assert (log = RefererTracking::Tracking.last.log)
+    assert_equal 2, log.to_s.lines.count
+    assert_match(/#{Date.today.to_s(:db)}.*: first_line$/, log.lines.first)
+    assert_match(/#{Date.today.to_s(:db)}.*: second line/, log.lines.last)
+  end
+
   test "status_without_save" do
     rt_created = RefererTracking::Tracking.create
     rt_created.update_status 'active'

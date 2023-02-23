@@ -1,7 +1,7 @@
 module RefererTracking
   class Tracking < ActiveRecord::Base
     self.table_name = "referer_trackings"
-    belongs_to :trackable, :polymorphic => true
+    belongs_to :trackable, polymorphic: true, optional: true
     serialize :infos_session, Hash
     serialize :infos_request, Hash
 
@@ -34,7 +34,7 @@ module RefererTracking
       str = "#{Time.now.utc.to_s(:db)}: #{log_line}\n"
       self.log = log.to_s + str
 
-      save if save_model
+      save if save_model && !self.new_record?
     end
 
     def get_log_lines(regexp)
