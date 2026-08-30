@@ -21,8 +21,8 @@ Gem::Specification.new do |s|
 
   s.add_dependency "rails", ">= 7.1", "< 9"
 
-  s.add_development_dependency "mocha"
-  s.add_development_dependency "bundler" # , "~> 1.10"
-  s.add_development_dependency "sqlite3"
+  s.add_development_dependency "mocha", ">= 2.1"
+  s.add_development_dependency "bundler", ">= 2.0" # , "~> 1.10"
+  s.add_development_dependency "sqlite3", ">= 1.4"
 
 end
