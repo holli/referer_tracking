@@ -15,12 +15,11 @@ Gem::Specification.new do |s|
   s.summary     = "Referer tracking automates better tracking in your Rails app. It tells you who creates activerecord objects / models, where did they originally come from, what url did they use etc. It does it by saving referrer url to session and saving information about the request when creating new item. It enables you to optimize your web-app user interface and flow."
   s.description = "Referer tracking automates better tracking in your Rails app. It tells you who creates activerecord objects / models, where did they originally come from, what url did they use etc. It does it by saving referrer url to session and saving information about the request when creating new item. It enables you to optimize your web-app user interface and flow."
   s.license     = "MIT"
-  s.required_ruby_version = '> 2.6'
+  s.required_ruby_version = ">= 3.1"
 
   s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.md"]
-  s.test_files = Dir["test/**/*"]
 
-  s.add_dependency "rails", "> 6"
+  s.add_dependency "rails", ">= 7.1", "< 9"
 
   s.add_development_dependency "mocha"
   s.add_development_dependency "bundler" # , "~> 1.10"

@@ -1,3 +1,10 @@
+## 5.0.0 (2026-08-30)
+
+  - Dropped support for Rails < 7.1 and Ruby < 3.1
+  - Added support for Rails 7.1, 7.2, 8.0, 8.1
+  - Fixed `serialize :infos_session, Hash` style calls (positional coder removed in Rails 7.2)
+  - Fixed `to_s(:db)` usages (removed in Rails 7.1)
+
 ## 4.5.0 (2022-01-01)
 
   - Dropped support for rails 5.2 and old ruby

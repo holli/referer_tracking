@@ -2,8 +2,8 @@ module RefererTracking
   class Tracking < ActiveRecord::Base
     self.table_name = "referer_trackings"
     belongs_to :trackable, polymorphic: true, optional: true
-    serialize :infos_session, Hash
-    serialize :infos_request, Hash
+    serialize :infos_session, type: Hash
+    serialize :infos_request, type: Hash
 
     def first_url_combined
       cookie_first_url || session_first_url
@@ -31,7 +31,7 @@ module RefererTracking
       Rails.logger.info("RefererTracking add_log_line to #{trackable_type}.#{trackable_id}: #{log_line}")
 
       log_line = log_line.to_s.gsub("\n", ' ')
-      str = "#{Time.now.utc.to_s(:db)}: #{log_line}\n"
+      str = "#{Time.now.utc.to_fs(:db)}: #{log_line}\n"
       self.log = log.to_s + str
 
       save if save_model && !self.new_record?
