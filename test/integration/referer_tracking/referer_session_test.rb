@@ -14,8 +14,8 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     ref = session["referer_tracking"]
     assert !ref.blank?, "should have referer_tracking in session"
 
-    assert_equal @referer, ref[:session_referer_url], "should have saved referer url"
-    assert_equal "http://#{host}/users", ref[:session_first_url], "should have saved first url"
+    assert_equal @referer, ref["session_referer_url"], "should have saved referer url"
+    assert_equal "http://#{host}/users", ref["session_first_url"], "should have saved first url"
   end
 
   test "should not update session in second requests" do
@@ -26,11 +26,25 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     get "/users/#{user.id}", headers: {"HTTP_REFERER" => "second_url"}
 
     ref = session["referer_tracking"]
-    assert_equal @referer, ref[:session_referer_url], "should not touch referer_url"
-    assert_equal "http://#{host}/users", ref[:session_first_url], "should not touch first_url"
+    assert_equal @referer, ref["session_referer_url"], "should not touch referer_url"
+    assert_equal "http://#{host}/users", ref["session_first_url"], "should not touch first_url"
 
-    assert_equal "CUSTOM_VAL", ref[:show_action], "should have added custom value that was set in show action source file"
+    assert_equal "CUSTOM_VAL", ref["show_action"], "should have added custom value that was set in show action source file"
 
+  end
+
+  # Regression: the session hash round-trips through the cookie, and since Rails 7.0
+  # serializes it as JSON there are no symbols on the way back. add_info used to look
+  # its key up as a symbol, so the "already set" guard never matched and every request
+  # overwrote the value it was supposed to keep.
+  test "add_info should keep the value from the first request" do
+    user = User.first
+    get "/users/#{user.id}", params: {custom_val: "from_first_request"}
+    assert_equal "from_first_request", session["referer_tracking"]["show_action"]
+
+    get "/users/#{user.id}", params: {custom_val: "from_second_request"}
+    assert_equal "from_first_request", session["referer_tracking"]["show_action"],
+                 "add_info must not overwrite a value set on an earlier request"
   end
 
   test "should be able to save models and safe referer_tracking at the same" do
@@ -51,23 +65,23 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     assert_equal @original_count + 1, RefererTracking::Tracking.count, "did not create referer tracking"
 
     ref_session = session["referer_tracking"]
-    assert_equal "http://www.example.com/users?gclib=some_keyword&pass=xxxx&more=things", ref_session[:session_first_url]
+    assert_equal "http://www.example.com/users?gclib=some_keyword&pass=xxxx&more=things", ref_session["session_first_url"]
 
     ref_track = RefererTracking::Tracking.order(:created_at).last
     assert !ref_track.blank?, "did not create ref tracking"
 
     assert_equal @referer, ref_track.session_referer_url
-    assert_equal ref_session[:session_first_url], ref_track.session_first_url
+    assert_equal ref_session["session_first_url"], ref_track.session_first_url
 
     assert_equal @referer, ref_track.cookie_referer_url
-    assert_equal ref_session[:session_first_url], ref_track.cookie_first_url
+    assert_equal ref_session["session_first_url"], ref_track.cookie_first_url
     assert 10.minutes.ago < ref_track.cookie_time && ref_track.cookie_time < Time.now
 
     assert_equal @user_agent, ref_track.user_agent
 
     assert_equal 'testing_request_add', ref_track.request_added
     assert_equal 'testing_session_add', ref_track.session_added
-    assert_equal "testing_session_add_without_db_column", ref_track.infos_session[:session_added_hash]
+    assert_equal "testing_session_add_without_db_column", ref_track.infos_session["session_added_hash"]
     assert_equal "testing_request_add_without_db_column", ref_track.infos_request[:request_added_hash]
 
     assert_equal @current_request_referer, ref_track.current_request_referer_url

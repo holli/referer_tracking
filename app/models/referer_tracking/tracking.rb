@@ -2,8 +2,11 @@ module RefererTracking
   class Tracking < ActiveRecord::Base
     self.table_name = "referer_trackings"
     belongs_to :trackable, polymorphic: true, optional: true
-    serialize :infos_session, type: Hash
-    serialize :infos_request, type: Hash
+    # coder is explicit because Rails 7.1 defaults set active_record.default_column_serializer
+    # to nil; without it `serialize` raises ArgumentError in any app on load_defaults 7.1+.
+    # YAML keeps the on-disk format of existing rows unchanged.
+    serialize :infos_session, type: Hash, coder: YAML
+    serialize :infos_request, type: Hash, coder: YAML
 
     def first_url_combined
       cookie_first_url || session_first_url
