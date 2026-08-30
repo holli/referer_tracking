@@ -22,8 +22,8 @@ class TrackingTest < ActiveSupport::TestCase
 
     assert (log = RefererTracking::Tracking.last.log)
     assert_equal 2, log.to_s.lines.count
-    assert_match(/#{Date.today.to_fs(:db)}.*: first_line$/, log.lines.first)
-    assert_match(/#{Date.today.to_fs(:db)}.*: second line/, log.lines.last)
+    assert_match(/#{Time.now.utc.to_date.to_fs(:db)}.*: first_line$/, log.lines.first)
+    assert_match(/#{Time.now.utc.to_date.to_fs(:db)}.*: second line/, log.lines.last)
   end
 
   test "add_log_line should not save if new record" do
@@ -40,8 +40,8 @@ class TrackingTest < ActiveSupport::TestCase
 
     assert (log = RefererTracking::Tracking.last.log)
     assert_equal 2, log.to_s.lines.count
-    assert_match(/#{Date.today.to_fs(:db)}.*: first_line$/, log.lines.first)
-    assert_match(/#{Date.today.to_fs(:db)}.*: second line/, log.lines.last)
+    assert_match(/#{Time.now.utc.to_date.to_fs(:db)}.*: first_line$/, log.lines.first)
+    assert_match(/#{Time.now.utc.to_date.to_fs(:db)}.*: second line/, log.lines.last)
   end
 
   test "status_without_save" do
@@ -59,7 +59,7 @@ class TrackingTest < ActiveSupport::TestCase
     rt = RefererTracking::Tracking.last
     assert_equal 'active', rt.status
     assert_equal 1, rt.log.lines.count
-    assert_match(/#{Date.today.to_fs(:db)}.*: status active$/, rt.log)
+    assert_match(/#{Time.now.utc.to_date.to_fs(:db)}.*: status active$/, rt.log)
 
     rt.update_status 'active'
     assert_equal 1, rt.log.lines.count, "should not alter anything if status stays the same"

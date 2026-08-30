@@ -14,15 +14,18 @@ module RefererTracking::ControllerAddons
         request_ref = request_ref.to_s.gsub(/pass(word)?=[^&]+/, 'pass=xxxx')
         first_url = request.url.to_s.gsub(/pass(word)?=[^&]+/, 'pass=xxxx')
 
-        hash[:session_referer_url] = request_ref
-        hash[:session_first_url] = first_url
+        # String keys throughout the session hash. Rails 7.0 made :json the default
+        # cookies_serializer, and JSON has no symbols — a symbol key written here comes
+        # back as a string on the next request, so any symbol lookup silently returns nil.
+        hash["session_referer_url"] = request_ref
+        hash["session_first_url"] = first_url
 
         if RefererTracking.set_referer_cookies && cookies[RefererTracking.set_referer_cookies_name].nil?
           cookie_info = "v01|||#{Time.now.utc.to_i}|||#{first_url.first(RefererTracking.set_referer_cookies_first_url_max_length)}|||#{request_ref.first(RefererTracking.set_referer_cookies_ref_url_max_length)}"
           cookies[RefererTracking.set_referer_cookies_name] = { :value => cookie_info, :expires => 5.years.from_now, :domain => :all }
         end
 
-        logger.info( "REFERER_TRACKING_FIRST: ver04 (ref|first) ||| #{hash[:session_referer_url]} ||| #{hash[:session_first_url]}" )
+        logger.info( "REFERER_TRACKING_FIRST: ver04 (ref|first) ||| #{hash["session_referer_url"]} ||| #{hash["session_first_url"]}" )
       end
 
     end
@@ -42,7 +45,7 @@ module RefererTracking::ControllerAddons
 
       ses.each_pair do |key, value|
         ref_mod[key] = value if ref_mod.has_attribute?(key)
-        ref_mod.infos_session[key] = value unless [:session_referer_url, :session_first_url].include?(key)
+        ref_mod.infos_session[key] = value unless ["session_referer_url", "session_first_url"].include?(key.to_s)
       end
 
       if defined?(@referer_tracking_request_add_infos)
@@ -90,19 +93,19 @@ module RefererTracking::ControllerAddons
   # Add only if referer_tracking already in session and key has not been added/changed before
   # So this is only performed on the first time of the session
   def referer_tracking_add_info(key, value)
-    if !session[:referer_tracking].nil? && session[:referer_tracking][key.to_sym].nil?
+    if !session[:referer_tracking].nil? && session[:referer_tracking][key.to_s].nil?
       referer_tracking_set_info(key, value)
     end
   end
 
   def referer_tracking_set_info(key, value)
     if !session[:referer_tracking].nil?
-      session[:referer_tracking][key.to_sym] = value
+      session[:referer_tracking][key.to_s] = value
     end
   end
 
   def referer_tracking_get_info(key)
-    session[:referer_tracking].nil? ? nil : session[:referer_tracking][key.to_sym]
+    session[:referer_tracking].nil? ? nil : session[:referer_tracking][key.to_s]
   end
 
   ###############################################
