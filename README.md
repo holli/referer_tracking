@@ -6,8 +6,6 @@ It does it by saving referrer url to session and saving information about the re
 
 Also includes tools to add log lines to models to get better information about the flow of the users or which A/B testing variation was used for which model. Aim is to make data collection for model creation, A/B-testing and growth hacking easier.
 
-[<img src="https://secure.travis-ci.org/holli/referer_tracking.png" />](http://travis-ci.org/holli/referer_tracking)
-
 ## Example use cases
 
 ```
