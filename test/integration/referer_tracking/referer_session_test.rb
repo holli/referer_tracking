@@ -170,5 +170,117 @@ class RefererSessionTest < ActionDispatch::IntegrationTest
     assert_equal 0, RefererTracking::Tracking.count, "should create one item"
   end
 
-end
 
+  # Rack hands header values over tagged ASCII-8BIT, valid multibyte ones included, while it
+  # unescapes cookies into UTF-8 without checking the result. Both shapes have to survive, so
+  # the encoding is forced here: a literal would be tagged UTF-8 either way.
+  BINARY_INVALID_REFERER = "https://example.com/h\xC3\xA4?q=\xFF".force_encoding(Encoding::BINARY)
+  BINARY_VALID_REFERER = "https://example.com/hä".force_encoding(Encoding::BINARY)
+  SCRUBBED_REFERER = "https://example.com/hä?q="
+
+  test "invalid bytes in the referer are scrubbed before the session is written" do
+    get '/users', headers: {"HTTP_REFERER" => BINARY_INVALID_REFERER}
+    assert_response :success
+
+    url = session["referer_tracking"]["session_referer_url"]
+    assert_equal Encoding::UTF_8, url.encoding
+    assert_equal SCRUBBED_REFERER, url, "should drop the invalid byte and keep the rest"
+  end
+
+  # A plain "hä" referer arrives tagged ASCII-8BIT too and used to lose its tracking row just
+  # as surely as an invalid byte did. It is also the guard against sanitizing with
+  # encode(invalid: :replace, undef: :replace) instead, which would store "h??" here.
+  test "a valid multibyte referer arriving as binary is kept intact" do
+    get '/users', headers: {"HTTP_REFERER" => BINARY_VALID_REFERER}
+    post '/users', params: {:user => {:name => 'test name'}}, headers: {"HTTP_REFERER" => BINARY_VALID_REFERER}
+
+    assert_equal "https://example.com/hä", session["referer_tracking"]["session_referer_url"]
+
+    ref_track = RefererTracking::Tracking.last
+    assert ref_track, "should have created the tracking row"
+    assert_equal "https://example.com/hä", ref_track.reload.current_request_referer_url
+  end
+
+  # Every literal fragment of the message is ASCII, so interpolating a binary url does not
+  # raise — the line just becomes ASCII-8BIT and Logger writes nothing. Only a log handle in
+  # text mode shows that: Logger.new(path) opens one, like a handle reopened after rotation,
+  # while the binmode handle Rails opens at boot takes binary happily.
+  test "the first request is logged even when the referer has invalid bytes" do
+    file = Tempfile.new(["referer_tracking_test", ".log"])
+    ApplicationController.any_instance.stubs(:logger).returns(Logger.new(file.path))
+
+    get '/users', headers: {"HTTP_REFERER" => BINARY_INVALID_REFERER}
+    assert_response :success
+
+    assert_match "REFERER_TRACKING_FIRST", File.read(file.path)
+  ensure
+    file&.close!
+  end
+
+  test "ref_track cookie is valid utf8 when the referer has invalid bytes" do
+    get '/users', headers: {"HTTP_REFERER" => BINARY_INVALID_REFERER}
+    assert_response :success
+
+    assert_equal SCRUBBED_REFERER, cookies['ref_track'].split("|||").last
+  end
+
+  test "tracking row is saved with valid utf8 when the request has invalid bytes" do
+    get '/users', headers: {"HTTP_REFERER" => BINARY_INVALID_REFERER}
+    post '/users', params: {:user => {:name => 'test name'}},
+         headers: {"HTTP_USER_AGENT" => "agent\xC3\xA4\xFF".force_encoding(Encoding::BINARY),
+                   "HTTP_REFERER" => BINARY_INVALID_REFERER}
+
+    ref_track = RefererTracking::Tracking.last
+    assert ref_track, "should have created the tracking row"
+
+    ref_track.reload
+    assert_equal SCRUBBED_REFERER, ref_track.current_request_referer_url
+    assert_equal "agentä", ref_track.user_agent
+  end
+
+  # Rack unescapes an incoming cookie into UTF-8 without checking the result, so a client can
+  # hand us bytes that blank? and split refuse to look at and Psych refuses to dump. Sanitizing
+  # the headers does not reach any of that, and the row has to survive it.
+  test "invalid bytes in the incoming cookies do not lose the tracking row" do
+    RefererTracking.save_cookies = true
+
+    get '/users', headers: {"HTTP_REFERER" => "www.some-source-forward.com"}
+    # Rack::Test escapes what it writes into the jar, so the invalid bytes have to go into the
+    # cookie header by hand, alongside the session cookie the first request set.
+    session_cookies = cookies.for(URI.parse("http://#{host}/users")).split("; ").grep_v(/\Aref_track=/)
+    post '/users', params: {:user => {:name => 'test name'}},
+         headers: {"HTTP_COOKIE" => (session_cookies + ["ref_track=v01|||123|||first%FF|||ref%FF", "junk=%FFbad"]).join("; ")}
+
+    ref_track = RefererTracking::Tracking.last
+    assert ref_track, "should have created the tracking row"
+    assert_equal "ref", ref_track.cookie_referer_url, "should keep the cookie url with the bad byte dropped"
+    assert_match "error:", ref_track.cookies_yaml, "should store the fallback text for an undumpable jar"
+  end
+
+  # Tracking is never worth failing a page over.
+  test "error in the first request tracking should not result error in response" do
+    ApplicationController.any_instance.stubs(:request_is_from_a_known_bot?).raises(RuntimeError, "boom")
+
+    get '/users', headers: {"HTTP_REFERER" => "www.some-source-forward.com"}
+
+    assert_response :success
+    assert_nil session["referer_tracking"]
+  end
+
+  # A half-built hash must not reach the session: session[:referer_tracking] would stop being
+  # nil, and this visitor would never be tracked again for the rest of the session.
+  test "a failure while building the session leaves nothing behind and the next request retries" do
+    logger = stub_everything('logger')
+    logger.stubs(:info).raises(RuntimeError, "boom").then.returns(nil)
+    ApplicationController.any_instance.stubs(:logger).returns(logger)
+
+    get '/users', headers: {"HTTP_REFERER" => "www.first-request.com"}
+    assert_response :success
+    assert_nil session["referer_tracking"], "should not leave a half built hash in the session"
+
+    get '/users', headers: {"HTTP_REFERER" => (referer = "www.second-request.com")}
+    assert_equal referer, session["referer_tracking"]["session_referer_url"],
+                 "should still track the session once the request succeeds"
+  end
+
+end
