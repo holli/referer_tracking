@@ -1,3 +1,17 @@
+## 5.0.1 (2026-09-08)
+
+  - Fixed request strings reaching the session, the cookie, the log and the database as
+    ASCII-8BIT. Rack tags every header value that way, so **any** non-ASCII referer or user
+    agent — not just the invalid bytes crawlers send — made the database adapter refuse the
+    write, and `referer_tracking_after_create` swallowed that: the tracking row silently went
+    missing. The same bytes dropped the `REFERER_TRACKING_FIRST` log line, and on an app with
+    `cookies_serializer :json` they raised in the cookie middleware and took the whole request
+    down. Values are now scrubbed to UTF-8 as they are read from the request
+  - Fixed the `cookies_yaml` fallback, whose `rescue` referred to an exception it never bound,
+    so a cookie Psych could not dump lost the whole tracking row instead of the yaml
+  - `before_action_referer_tracking_save_to_session` no longer lets its own errors reach the
+    application; it logs them, as `referer_tracking_after_create` already did
+
 ## 5.0.0 (2026-08-30)
 
   - Dropped support for Rails < 7.1 and Ruby < 3.1

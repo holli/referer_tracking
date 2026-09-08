@@ -8,6 +8,9 @@ require "referer_tracking"
 module Dummy
   class Application < Rails::Application
     config.load_defaults 7.1
+    # Rails 8.0 deprecates every value but :zone here; on 7.1/7.2 :zone is simply truthy,
+    # which is what load_defaults 7.1 sets anyway.
+    config.active_support.to_time_preserves_timezone = :zone
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.

@@ -6,19 +6,17 @@ module RefererTracking::ControllerAddons
     unless request_is_from_a_known_bot?
       if session[:referer_tracking].nil?
         @referer_tracking_first_request = true
-        session[:referer_tracking] = hash = Hash.new
 
-        request_ref = "unknown"
-        request_ref = request.headers["HTTP_REFERER"] if !request.headers["HTTP_REFERER"].blank?
+        request_ref = referer_tracking_utf8(request.headers["HTTP_REFERER"])
+        request_ref = "unknown" if request_ref.blank?
 
-        request_ref = request_ref.to_s.gsub(/pass(word)?=[^&]+/, 'pass=xxxx')
-        first_url = request.url.to_s.gsub(/pass(word)?=[^&]+/, 'pass=xxxx')
+        request_ref = request_ref.gsub(/pass(word)?=[^&]+/, 'pass=xxxx')
+        first_url = referer_tracking_utf8(request.url).gsub(/pass(word)?=[^&]+/, 'pass=xxxx')
 
         # String keys throughout the session hash. Rails 7.0 made :json the default
         # cookies_serializer, and JSON has no symbols — a symbol key written here comes
         # back as a string on the next request, so any symbol lookup silently returns nil.
-        hash["session_referer_url"] = request_ref
-        hash["session_first_url"] = first_url
+        hash = {"session_referer_url" => request_ref, "session_first_url" => first_url}
 
         if RefererTracking.set_referer_cookies && cookies[RefererTracking.set_referer_cookies_name].nil?
           cookie_info = "v01|||#{Time.now.utc.to_i}|||#{first_url.first(RefererTracking.set_referer_cookies_first_url_max_length)}|||#{request_ref.first(RefererTracking.set_referer_cookies_ref_url_max_length)}"
@@ -26,9 +24,17 @@ module RefererTracking::ControllerAddons
         end
 
         logger.info( "REFERER_TRACKING_FIRST: ver04 (ref|first) ||| #{hash["session_referer_url"]} ||| #{hash["session_first_url"]}" )
+
+        # Assigned once the hash is complete. A half-built one reaching the session cookie
+        # would leave session[:referer_tracking] non-nil, and this block would never run
+        # again for that visitor.
+        session[:referer_tracking] = hash
       end
 
     end
+
+  rescue => e
+    Rails.logger.info "RefererTracking::ControllerAddons.save_to_session problem with the first request: #{e}"
   end
 
   def referer_tracking_after_create(record)
@@ -58,13 +64,17 @@ module RefererTracking::ControllerAddons
       end
 
       ref_mod[:ip] = request.ip
-      ref_mod[:user_agent] = request.env['HTTP_USER_AGENT'].to_s.first(200)
-      ref_mod[:current_request_url] = request.url
-      ref_mod[:current_request_referer_url] = request.env["HTTP_REFERER"] # or request.headers["HTTP_REFERER"]
+      ref_mod[:user_agent] = referer_tracking_utf8(request.env['HTTP_USER_AGENT']).to_s.first(200)
+      ref_mod[:current_request_url] = referer_tracking_utf8(request.url)
+      ref_mod[:current_request_referer_url] = referer_tracking_utf8(request.env["HTTP_REFERER"]) # or request.headers["HTTP_REFERER"]
       ref_mod[:session_id] = request.session["session_id"]
 
-      unless cookies[RefererTracking.set_referer_cookies_name].blank?
-        _cookie_ver, cookie_time_org, cookie_first_url, cookie_referer_url = cookies[RefererTracking.set_referer_cookies_name].to_s.split("|||")
+      # Sanitized before blank? and split, which match a regexp against the value and raise on
+      # invalid bytes instead of answering. Rack unescapes an incoming cookie into UTF-8 without
+      # checking the result, so whatever the client sent arrives here as it is.
+      ref_cookie = referer_tracking_utf8(cookies[RefererTracking.set_referer_cookies_name])
+      unless ref_cookie.blank?
+        _cookie_ver, cookie_time_org, cookie_first_url, cookie_referer_url = ref_cookie.split("|||")
         ref_mod[:cookie_first_url] = cookie_first_url
         ref_mod[:cookie_referer_url] = cookie_referer_url
         ref_mod[:cookie_time] = Time.at(cookie_time_org.to_i)
@@ -73,7 +83,7 @@ module RefererTracking::ControllerAddons
       if RefererTracking.save_cookies
         begin
           ref_mod[:cookies_yaml] = cookies.instance_variable_get('@cookies').to_yaml
-        rescue
+        rescue => e
           str = "referer_tracking after create problem encoding cookie yml, probably non utf8 chars #{e}"
           logger.error(str)
           ref_mod[:cookies_yaml] = "error: #{str}"
@@ -86,6 +96,18 @@ module RefererTracking::ControllerAddons
   rescue Exception => e
     Rails.logger.info "RefererTracking::ControllerAddons.after_create problem with creating record: #{e}"
   end
+
+  # Everything the request hands us — headers tagged ASCII-8BIT by Rack, cookies unescaped into
+  # UTF-8 without a validity check — is scrubbed here before anything downstream looks at it.
+  #
+  # scrub rather than encode(invalid: :replace, undef: :replace): converting *from* ASCII-8BIT
+  # treats every byte above 0x7F as undefined, so encode turns a valid "hä" into "h??", and
+  # since Rack tags valid multibyte referers binary too that is the common case, not the edge
+  # case. scrub drops only the genuinely invalid bytes.
+  def referer_tracking_utf8(str)
+    str.nil? ? nil : str.to_s.dup.force_encoding(Encoding::UTF_8).scrub("")
+  end
+  private :referer_tracking_utf8
 
   ###############################################
   # Session add methods
